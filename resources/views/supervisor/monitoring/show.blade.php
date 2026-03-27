@@ -1,0 +1,9 @@
+@extends('layouts.supervisor')
+
+@section('title', 'Detail Kinerja Teknisi')
+
+@section('supervisor-content')
+<div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom"><h1 class="h2"><i class="fas fa-user-cog text-orange me-2"></i>Detail Kinerja Teknisi</h1><a href="{{ route('supervisor.monitoring.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a></div>
+<div class="row"><div class="col-md-4"><div class="card border-0 text-center"><div class="card-body"><img src="{{ $technician->avatar_url }}" class="rounded-circle mb-3" width="100"><h4>{{ $technician->name }}</h4><p class="text-muted">{{ $technician->email }}</p><hr><div class="row"><div class="col-6"><h5 class="text-success">{{ $tasks->whereNotNull('completed_at')->count() }}</h5><small>Selesai</small></div><div class="col-6"><h5 class="text-warning">{{ $tasks->whereNull('completed_at')->count() }}</h5><small>Aktif</small></div></div></div></div></div>
+<div class="col-md-8"><div class="card border-0"><div class="card-header bg-white"><h5 class="mb-0">Riwayat Tugas</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-hover"><thead><tr class="table-light"><th>No. Laporan</th><th>Judul</th><th>Status</th><th>Waktu Pengerjaan</th></tr></thead><tbody>@forelse($tasks as $task)<tr><td>#{{ str_pad($task->report_id, 5, '0', STR_PAD_LEFT) }}</td><td>{{ $task->report->title }}</td><td>{!! $task->report->status_badge !!}</td><td>@if($task->started_at && $task->completed_at){{ $task->started_at->diffInHours($task->completed_at) }} jam @else - @endif</td></tr>@empty<tr><td colspan="4" class="text-center py-4">Belum ada tugas</td></tr>@endforelse</tbody></table></div></div></div></div></div>
+@endsection
