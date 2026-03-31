@@ -17,6 +17,7 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        // Validasi
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -27,6 +28,7 @@ class RegisterController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
+        // Buat user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -38,8 +40,13 @@ class RegisterController extends Controller
             'role' => 'mahasiswa',
         ]);
 
+        // Login
         Auth::login($user);
 
+        // Regenerate session
+        $request->session()->regenerate();
+
+        // Redirect ke dashboard
         return redirect()->route('dashboard');
     }
 }
