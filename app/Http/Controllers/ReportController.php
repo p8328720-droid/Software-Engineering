@@ -89,7 +89,7 @@ class ReportController extends Controller
         $view = 'pelapor.reports.show';
         if ($user->isTeknisi()) {
             $view = 'teknisi.reports.show';
-        } elseif ($user->isSupervisor() || $user->isAdmin()) {
+        } elseif ($user->isAdmin()) {
             // Check if there is a specific view for supervisor/admin
             // For now, use mahasiswa view or create a generic one
         }
