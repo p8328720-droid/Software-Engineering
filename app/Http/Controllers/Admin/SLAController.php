@@ -39,7 +39,7 @@ class SLAController extends Controller
             'is_active' => $request->is_active ?? false,
         ]);
 
-        return redirect()->route('admin.sla')
+        return redirect()->route('admin.sla.index')
             ->with('success', 'Aturan SLA berhasil diperbarui');
     }
 }

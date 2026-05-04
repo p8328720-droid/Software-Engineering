@@ -9,12 +9,12 @@
 
 <div class="card border-0 mb-4">
     <div class="card-body">
-        <form method="GET" action="{{ route('admin.audit') }}" class="row g-3">
+        <form method="GET" action="{{ route('admin.audit.index') }}" class="row g-3">
             <div class="col-md-3"><label class="form-label">Aksi</label><input type="text" name="action" class="form-control" placeholder="Cari aksi..." value="{{ request('action') }}"></div>
             <div class="col-md-2"><label class="form-label">Tabel</label><select name="table" class="form-select"><option value="">Semua</option>@foreach($tables as $table)<option value="{{ $table }}" {{ request('table') == $table ? 'selected' : '' }}>{{ $table }}</option>@endforeach</select></div>
             <div class="col-md-2"><label class="form-label">Dari Tanggal</label><input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}"></div>
             <div class="col-md-2"><label class="form-label">Sampai Tanggal</label><input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}"></div>
-            <div class="col-md-3 d-flex align-items-end"><button type="submit" class="btn btn-primary me-2"><i class="fas fa-search me-1"></i> Filter</button><a href="{{ route('admin.audit') }}" class="btn btn-secondary"><i class="fas fa-undo me-1"></i> Reset</a></div>
+            <div class="col-md-3 d-flex align-items-end"><button type="submit" class="btn btn-primary me-2"><i class="fas fa-search me-1"></i> Filter</button><a href="{{ route('admin.audit.index') }}" class="btn btn-secondary"><i class="fas fa-undo me-1"></i> Reset</a></div>
         </form>
     </div>
 </div>

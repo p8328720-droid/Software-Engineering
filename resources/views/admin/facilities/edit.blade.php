@@ -5,7 +5,7 @@
 @section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="fas fa-edit me-2 text-orange"></i>Edit Fasilitas</h1>
-    <a href="{{ route('admin.facilities') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a>
+    <a href="{{ route('admin.facilities.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a>
 </div>
 
 <div class="card border-0">
@@ -61,7 +61,7 @@
                 @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Update</button>
-            <a href="{{ route('admin.facilities') }}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
+            <a href="{{ route('admin.facilities.index') }}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
         </form>
     </div>
 </div>

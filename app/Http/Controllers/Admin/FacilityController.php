@@ -49,7 +49,7 @@ class FacilityController extends Controller
             'is_active' => $request->is_active ?? true,
         ]);
 
-        return redirect()->route('admin.facilities')
+        return redirect()->route('admin.facilities.index')
             ->with('success', 'Fasilitas berhasil ditambahkan');
     }
 
@@ -83,7 +83,7 @@ class FacilityController extends Controller
             'is_active' => $request->is_active ?? false,
         ]);
 
-        return redirect()->route('admin.facilities')
+        return redirect()->route('admin.facilities.index')
             ->with('success', 'Fasilitas berhasil diperbarui');
     }
 
@@ -92,13 +92,13 @@ class FacilityController extends Controller
         $facility = Facility::findOrFail($id);
         
         if ($facility->reports()->count() > 0) {
-            return redirect()->route('admin.facilities')
+            return redirect()->route('admin.facilities.index')
                 ->with('error', 'Fasilitas memiliki laporan, tidak dapat dihapus');
         }
         
         $facility->delete();
         
-        return redirect()->route('admin.facilities')
+        return redirect()->route('admin.facilities.index')
             ->with('success', 'Fasilitas berhasil dihapus');
     }
 }

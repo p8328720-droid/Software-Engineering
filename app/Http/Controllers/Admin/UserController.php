@@ -44,7 +44,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('admin.users')
+        return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil ditambahkan');
     }
 
@@ -85,7 +85,7 @@ class UserController extends Controller
         
         $user->update($data);
 
-        return redirect()->route('admin.users')
+        return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil diperbarui');
     }
 
@@ -94,13 +94,13 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         
         if ($user->id == auth()->id()) {
-            return redirect()->route('admin.users')
+            return redirect()->route('admin.users.index')
                 ->with('error', 'Anda tidak dapat menghapus akun sendiri');
         }
         
         $user->delete();
         
-        return redirect()->route('admin.users')
+        return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil dihapus');
     }
 }

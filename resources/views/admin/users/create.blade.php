@@ -5,7 +5,7 @@
 @section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="fas fa-user-plus me-2 text-orange"></i>Tambah User Baru</h1>
-    <a href="{{ route('admin.users') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a>
+    <a href="{{ route('admin.users.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a>
 </div>
 
 <div class="card border-0">
@@ -77,7 +77,7 @@
                 <input type="password" name="password_confirmation" class="form-control" required>
             </div>
             <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Simpan</button>
-            <a href="{{ route('admin.users') }}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
+            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
         </form>
     </div>
 </div>

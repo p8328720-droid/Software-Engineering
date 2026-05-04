@@ -5,7 +5,7 @@
 @section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="fas fa-edit me-2 text-orange"></i>Edit Aturan SLA</h1>
-    <a href="{{ route('admin.sla') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a>
+    <a href="{{ route('admin.sla.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a>
 </div>
 
 <div class="card border-0">
@@ -46,7 +46,7 @@
             </div>
             <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i> Perubahan aturan SLA akan berlaku untuk laporan baru setelah perubahan disimpan.</div>
             <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Simpan Perubahan</button>
-            <a href="{{ route('admin.sla') }}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
+            <a href="{{ route('admin.sla.index') }}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
         </form>
     </div>
 </div>

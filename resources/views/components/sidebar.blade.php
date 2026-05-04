@@ -20,22 +20,22 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users') }}">
+                <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
                     <i class="fas fa-users me-2"></i> Kelola Users
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.facilities.*') ? 'active' : '' }}" href="{{ route('admin.facilities') }}">
+                <a class="nav-link {{ request()->routeIs('admin.facilities.*') ? 'active' : '' }}" href="{{ route('admin.facilities.index') }}">
                     <i class="fas fa-building me-2"></i> Kelola Fasilitas
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.sla.*') ? 'active' : '' }}" href="{{ route('admin.sla') }}">
+                <a class="nav-link {{ request()->routeIs('admin.sla.*') ? 'active' : '' }}" href="{{ route('admin.sla.index') }}">
                     <i class="fas fa-clock me-2"></i> Aturan SLA
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.audit') ? 'active' : '' }}" href="{{ route('admin.audit') }}">
+                <a class="nav-link {{ request()->routeIs('admin.audit.*') ? 'active' : '' }}" href="{{ route('admin.audit.index') }}">
                     <i class="fas fa-history me-2"></i> Audit Trail
                 </a>
             </li>
@@ -68,7 +68,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('teknisi.reports') ? 'active' : '' }}" href="{{ route('teknisi.reports') }}">
+                <a class="nav-link {{ request()->routeIs('teknisi.reports.*') ? 'active' : '' }}" href="#">
                     <i class="fas fa-chart-line me-2"></i> Laporan Saya
                 </a>
             </li>

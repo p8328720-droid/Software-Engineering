@@ -198,7 +198,7 @@
         <div class="card border-0">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-users text-orange me-2"></i>User Terbaru</h5>
-                <a href="{{ route('admin.users') }}" class="btn btn-sm btn-outline-primary">Kelola User</a>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary">Kelola User</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
