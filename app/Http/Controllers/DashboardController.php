@@ -27,11 +27,29 @@ class DashboardController extends Controller
             return $this->adminDashboard();
         } elseif ($user->isTeknisi()) {
             return $this->teknisiDashboard();
-        } elseif ($user->isSupervisor()) {
-            return $this->supervisorDashboard();
-        } else {
-            return $this->mahasiswaDashboard();
+        } else { // Assuming the remaining role is 'pelapor'
+            return $this->pelaporDashboard();
         }
+    }
+
+    private function pelaporDashboard()
+    {
+        $reportStats = $this->reportService->getStats(Auth::id());
+        
+        $stats = [
+            'total_reports' => $reportStats['total'],
+            'pending_reports' => $reportStats['pending'],
+            'completed_reports' => $reportStats['completed'],
+            'in_progress_reports' => $reportStats['in_progress'],
+        ];
+        
+        $recent_reports = Report::with('facility')
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+            
+        return view('pelapor.dashboard', compact('stats', 'recent_reports'));
     }
 
     private function adminDashboard()
@@ -45,11 +63,12 @@ class DashboardController extends Controller
             'completed_reports' => $reportStats['completed'],
             'total_users' => User::count(),
             'total_technicians' => User::where('role', 'teknisi')->count(),
-            'total_students' => User::where('role', 'mahasiswa')->count(),
+            'total_students' => User::where('role', 'pelapor')->count(), // Updated to 'pelapor'
             'total_facilities' => Facility::count(),
             'sla_violations' => Report::where('status', '!=', 'completed')
                 ->where('sla_deadline', '<', now())
                 ->count(),
+            'active_technicians' => User::where('role', 'teknisi')->count(),
         ];
         
         $recent_reports = Report::with(['user', 'facility'])
@@ -72,44 +91,6 @@ class DashboardController extends Controller
             ->get();
             
         return view('admin.dashboard', compact('stats', 'recent_reports', 'reports_by_status', 'reports_by_facility', 'recent_users'));
-    }
-
-    private function mahasiswaDashboard()
-    {
-        $reportStats = $this->reportService->getStats(Auth::id());
-        
-        $stats = [
-            'total_reports' => $reportStats['total'],
-            'pending_reports' => $reportStats['pending'],
-            'completed_reports' => $reportStats['completed'],
-            'in_progress_reports' => $reportStats['in_progress'],
-        ];
-        
-        $recent_reports = Report::with('facility')
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-            
-        return view('mahasiswa.dashboard', compact('stats', 'recent_reports'));
-    }
-
-    private function supervisorDashboard()
-    {
-        $stats = [
-            'total_reports' => Report::count(),
-            'sla_violations' => Report::where('status', '!=', 'completed')
-                ->where('sla_deadline', '<', now())
-                ->count(),
-            'active_technicians' => User::where('role', 'teknisi')->count(),
-        ];
-        
-        $reports = Report::with(['user', 'facility', 'technicianAssignments.technician'])
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-            
-        return view('supervisor.dashboard', compact('stats', 'reports'));
     }
 
     private function teknisiDashboard()

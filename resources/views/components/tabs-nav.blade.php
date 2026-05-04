@@ -1,25 +1,25 @@
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('mahasiswa.dashboard') ? 'active' : '' }}" 
-           href="{{ route('mahasiswa.dashboard') }}">
+        <a class="nav-link {{ request()->routeIs('pelapor.dashboard') ? 'active' : '' }}" 
+           href="{{ route('pelapor.dashboard') }}">
             <i class="fas fa-tachometer-alt me-1"></i> Dashboard
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('mahasiswa.reports.create') ? 'active' : '' }}" 
-           href="{{ route('mahasiswa.reports.create') }}">
+        <a class="nav-link {{ request()->routeIs('pelapor.reports.create') ? 'active' : '' }}" 
+           href="{{ route('pelapor.reports.create') }}">
             <i class="fas fa-plus-circle me-1"></i> Buat Laporan
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('mahasiswa.reports.index') ? 'active' : '' }}" 
-           href="{{ route('mahasiswa.reports.index') }}">
+        <a class="nav-link {{ request()->routeIs('pelapor.reports.index') ? 'active' : '' }}" 
+           href="{{ route('pelapor.reports.index') }}">
             <i class="fas fa-list me-1"></i> Daftar Laporan
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link {{ request()->routeIs('mahasiswa.tracking') ? 'active' : '' }}" 
-           href="{{ route('mahasiswa.tracking') }}">
+        <a class="nav-link {{ request()->routeIs('pelapor.tracking') ? 'active' : '' }}" 
+           href="{{ route('pelapor.tracking') }}">
             <i class="fas fa-map-marker-alt me-1"></i> Tracking
         </a>
     </li>

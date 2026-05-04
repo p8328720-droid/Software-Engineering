@@ -29,7 +29,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:15',
             'faculty' => 'nullable|string|max:255',
             'major' => 'nullable|string|max:255',
-            'role' => 'required|in:mahasiswa,teknisi,supervisor,admin',
+            'role' => 'required|in:mahasiswa,teknisi,admin',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -65,7 +65,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:15',
             'faculty' => 'nullable|string|max:255',
             'major' => 'nullable|string|max:255',
-            'role' => 'required|in:mahasiswa,teknisi,supervisor,admin',
+            'role' => 'required|in:mahasiswa,teknisi,admin',
             'password' => 'nullable|string|min:6|confirmed',
         ]);
 

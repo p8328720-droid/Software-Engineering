@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\Mahasiswa\TrackingController;
+use App\Http\Controllers\Pelapor\TrackingController; // Assuming Pelapor namespace
 
-Route::prefix('mahasiswa')->name('mahasiswa.')->middleware(['auth', 'role:mahasiswa'])->group(function () {
+Route::prefix('pelapor')->name('pelapor.')->middleware(['auth', 'role:pelapor'])->group(function () {
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     

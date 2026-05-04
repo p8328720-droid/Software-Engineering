@@ -25,6 +25,5 @@ Route::middleware(['auth'])->group(function () {
 
 // Include route files
 require __DIR__.'/admin.php';
-require __DIR__.'/mahasiswa.php';
+require __DIR__.'/pelapor.php';
 require __DIR__.'/teknisi.php';
-require __DIR__.'/supervisor.php';

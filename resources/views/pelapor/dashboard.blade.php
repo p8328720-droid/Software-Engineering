@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Dashboard Mahasiswa')
+@section('title', 'Dashboard Pelapor')
 
 @section('dashboard-content')
 <div class="row mb-4">
@@ -18,14 +18,14 @@
                 <thead><tr class="table-light"><th>ID</th><th>Judul</th><th>Fasilitas</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
                 <tbody>
                     @forelse($recent_reports as $report)
-                    <tr><td>#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td><td>{{ $report->title }}</td><td>{{ $report->facility->name }}</td><td><x-report-status :status="$report->status" /></td><td>{{ $report->created_at->format('d/m/Y') }}</td><td><a href="{{ route('mahasiswa.reports.show', $report) }}" class="btn btn-sm btn-outline-primary">Detail</a></td></tr>
+                    <tr><td>#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td><td>{{ $report->title }}</td><td>{{ $report->facility->name }}</td><td><x-report-status :status="$report->status" /></td><td>{{ $report->created_at->format('d/m/Y') }}</td><td><a href="{{ route('pelapor.reports.show', $report) }}" class="btn btn-sm btn-outline-primary">Detail</a></td></tr>
                     @empty
                     <tr><td colspan="6" class="text-center py-4">Belum ada laporan</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="text-center mt-3"><a href="{{ route('mahasiswa.reports.create') }}" class="btn btn-primary"><i class="fas fa-plus-circle me-1"></i> Buat Laporan Baru</a></div>
+        <div class="text-center mt-3"><a href="{{ route('pelapor.reports.create') }}" class="btn btn-primary"><i class="fas fa-plus-circle me-1"></i> Buat Laporan Baru</a></div>
     </div>
 </div>
 @endsection

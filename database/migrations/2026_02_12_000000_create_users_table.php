@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('faculty')->nullable();
             $table->string('major')->nullable();
-            $table->enum('role', ['mahasiswa', 'teknisi', 'supervisor', 'admin'])->default('mahasiswa');
+            $table->enum('role', ['pelapor', 'teknisi', 'admin'])->default('pelapor');
             $table->string('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

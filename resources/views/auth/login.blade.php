@@ -76,7 +76,7 @@
             <div class="text-center mt-3">
                 <small class="text-muted">
                     <i class="fas fa-info-circle me-1"></i>
-                    Demo: mahasiswa@example.com / password
+                    Demo: pelapor@example.com / password
                 </small>
             </div>
         </div>

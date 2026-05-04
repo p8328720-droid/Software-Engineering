@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\EscalationController;
+use App\Http\Controllers\Admin\MonitoringController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UserController;
@@ -30,4 +32,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/sla/{id}', [SLAController::class, 'update'])->name('sla.update');
     
     Route::get('/audit', [AuditController::class, 'index'])->name('audit.index');
+
+    // Merged from Supervisor
+    Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
+    Route::get('/monitoring/{id}', [MonitoringController::class, 'show'])->name('monitoring.show');
+    Route::get('/escalation', [EscalationController::class, 'index'])->name('escalation.index');
 });

@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Mahasiswa Contoh',
                 'password' => Hash::make('password'),
-                'role' => 'mahasiswa',
+                'role' => 'pelapor',
                 'phone' => '081234567801',
                 'student_id' => '123456789',
                 'faculty' => 'Fakultas Ilmu Komputer',
@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
                 [
                     'name' => $student['name'],
                     'password' => Hash::make('password'),
-                    'role' => 'mahasiswa',
+                    'role' => 'pelapor',
                     'phone' => $student['phone'],
                     'student_id' => $student['student_id'],
                     'faculty' => 'Fakultas Teknik',

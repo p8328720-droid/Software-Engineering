@@ -59,7 +59,7 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Role <span class="text-danger">*</span></label>
                     <select name="role" class="form-select @error('role') is-invalid @enderror" required>
-                        <option value="mahasiswa" {{ old('role', $user->role) == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                        <option value="pelapor" {{ old('role', $user->role) == 'pelapor' ? 'selected' : '' }}>Pelapor</option>
                         <option value="teknisi" {{ old('role', $user->role) == 'teknisi' ? 'selected' : '' }}>Teknisi</option>
                         <option value="supervisor" {{ old('role', $user->role) == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
                         <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>

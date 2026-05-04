@@ -16,7 +16,7 @@ class ReportSeeder extends Seeder
      */
     public function run(): void
     {
-        $students = User::where('role', 'mahasiswa')->get();
+        $students = User::where('role', 'pelapor')->get();
         $facilities = Facility::all();
         $technicians = User::where('role', 'teknisi')->get();
         $supervisors = User::where('role', 'supervisor')->get();

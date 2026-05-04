@@ -37,7 +37,7 @@ class RegisterController extends Controller
             'faculty' => $request->faculty,
             'major' => $request->major,
             'password' => Hash::make($request->password),
-            'role' => 'mahasiswa',
+            'role' => 'pelapor',
         ]);
 
         // Login

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-@if(Auth::user()->isMahasiswa())
+@if(Auth::user()->isPelapor())
     <div class="container">
         <div class="row mb-4">
             <div class="col-12">

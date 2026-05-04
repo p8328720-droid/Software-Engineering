@@ -34,19 +34,14 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    public function isMahasiswa()
+    public function isPelapor()
     {
-        return $this->role === 'mahasiswa';
+        return $this->role === 'pelapor';
     }
 
     public function isTeknisi()
     {
         return $this->role === 'teknisi';
-    }
-
-    public function isSupervisor()
-    {
-        return $this->role === 'supervisor';
     }
 
     public function getAvatarUrlAttribute()

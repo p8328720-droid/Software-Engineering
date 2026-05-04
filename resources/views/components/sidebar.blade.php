@@ -3,9 +3,6 @@
         @if(Auth::user()->isAdmin())
             <i class="fas fa-user-cog fa-3x text-orange"></i>
             <h6 class="mt-2 text-muted">Admin Panel</h6>
-        @elseif(Auth::user()->isSupervisor())
-            <i class="fas fa-chart-line fa-3x text-orange"></i>
-            <h6 class="mt-2 text-muted">Supervisor Panel</h6>
         @elseif(Auth::user()->isTeknisi())
             <i class="fas fa-wrench fa-3x text-orange"></i>
             <h6 class="mt-2 text-muted">Teknisi Panel</h6>
@@ -39,23 +36,6 @@
                     <i class="fas fa-history me-2"></i> Audit Trail
                 </a>
             </li>
-        @elseif(Auth::user()->isSupervisor())
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('supervisor.dashboard') ? 'active' : '' }}" href="{{ route('supervisor.dashboard') }}">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('supervisor.monitoring.*') ? 'active' : '' }}" href="{{ route('supervisor.monitoring.index') }}">
-                    <i class="fas fa-chart-line me-2"></i> Monitoring Kinerja
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('supervisor.escalation.*') ? 'active' : '' }}" href="{{ route('supervisor.escalation.index') }}">
-                    <i class="fas fa-arrow-up me-2"></i> Eskalasi Laporan
-                </a>
-            </li>
-            <!-- Add other supervisor links here -->
         @elseif(Auth::user()->isTeknisi())
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('teknisi.dashboard') ? 'active' : '' }}" href="{{ route('teknisi.dashboard') }}">
