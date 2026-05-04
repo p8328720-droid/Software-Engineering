@@ -3,7 +3,8 @@
 @section('title', 'Buat Laporan')
 
 @section('dashboard-content')
-<div class="card border    <    <div class="card-header bg-white">
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
         <h5 class="mb-0"><i class="fas fa-plus-circle text-orange me-2"></i>Buat Laporan Kerusakan Baru</h5>
     </div>
     <div class="card-body">
@@ -79,10 +80,9 @@
                 <strong>Informasi SLA:</strong> Laporan akan segera diproses oleh teknisi.
             </div>
             
+            {{-- Duplikasi Tombol Dihapus --}}
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-paper-plane me-2"></i> Kirim Laporan
-            </button>
-  <i class="fas fa-paper-plane me-2"></i> Kirim Laporan
             </button>
             <a href="{{ route('pelapor.dashboard') }}" class="btn btn-secondary">Batal</a>
         </form>
