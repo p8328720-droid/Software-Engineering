@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -21,6 +22,9 @@ Route::post('register', [RegisterController::class, 'register']);
 // Dashboard (protected)
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Route for submitting comments on reports
+    Route::post('/reports/{report}/comments', [ReportController::class, 'storeComment'])->name('reports.comments.store');
 });
 
 // Include route files

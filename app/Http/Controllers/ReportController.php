@@ -79,21 +79,131 @@ class ReportController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $report = Report::with(['user', 'facility', 'comments.user'])
+        // Eager load statusHistory for the progress tracker and comments/user for comments section
+        $report = Report::with(['user', 'facility', 'comments.user', 'statusHistory'])
             ->findOrFail($id);
             
+        // Ensure pelapor can only view their own reports
         if ($user->isPelapor() && $report->user_id !== $user->id) {
-            abort(403);
+            abort(403, 'Akses ditolak.');
         }
-        
-        $view = 'pelapor.reports.show';
-        if ($user->isTeknisi()) {
-            $view = 'teknisi.reports.show';
-        } elseif ($user->isAdmin()) {
-            // Check if there is a specific view for supervisor/admin
-            // For now, use mahasiswa view or create a generic one
-        }
+
+        // Fetch all technicians for the modals
+        $technicians = \App\Models\User::where('role', 'teknisi')->get();
             
-        return view($view, compact('report'));
+        // Render the unified reports view
+        return view('reports.show', compact('report', 'technicians'));
+    }
+    
+    /**
+     * Verify a report and assign a technician.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Report  $report
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function verifyReport(Request $request, Report $report)
+    {
+        // Ensure the user is an admin
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'assignee_id' => 'required|exists:users,id',
+            'verification_notes' => 'nullable|string|max:1000',
+        ]);
+
+        // Update report status
+        $report->status = 'in_progress';
+        $report->save(); // Save the status update
+
+        // Create a new technician assignment record
+        $report->technicianAssignments()->create([
+            'technician_id' => $request->assignee_id,
+            'assigned_by' => Auth::id(),
+            'assigned_at' => now(),
+        ]);
+
+        // Add a status history entry
+        $report->statusHistory()->create([
+            'status' => 'in_progress',
+            'description' => $request->verification_notes ?? 'Laporan diverifikasi dan ditetapkan kepada teknisi.',
+            'user_id' => Auth::id(), // The admin performing the verification
+        ]);
+
+        return redirect()->route('admin.reports.index') // Assuming an admin reports index exists, or redirect back
+            ->with('success', 'Laporan berhasil diverifikasi dan ditetapkan.');
+    }
+
+    /**
+     * Store a new comment for a report.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Report  $report
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeComment(Request $request, Report $report)
+    {
+        $request->validate([
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        // Create the comment, associating it with the report and the authenticated user
+        $report->comments()->create([
+            'user_id' => Auth::id(),
+            'comment' => $request->comment,
+        ]);
+
+        return redirect()->back()->with('success', 'Komentar berhasil ditambahkan.');
+    }
+
+    /**
+     * Forward a report to another technician.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Report  $report
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function forwardReport(Request $request, Report $report)
+    {
+        // Ensure the user is an admin
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'assignee_id' => 'required|exists:users,id',
+            'forwarding_notes' => 'nullable|string|max:1000',
+        ]);
+
+        // Create a new technician assignment record
+        $report->technicianAssignments()->create([
+            'technician_id' => $request->assignee_id,
+            'assigned_by' => Auth::id(),
+            'assigned_at' => now(),
+        ]);
+
+        // Add a status history entry
+        $report->statusHistory()->create([
+            'status' => $report->status, // Use the current status or a new one if defined
+            'description' => $request->forwarding_notes ?? 'Laporan diteruskan kepada teknisi lain.',
+            'user_id' => Auth::id(), // The admin performing the forwarding
+        ]);
+
+        return redirect()->route('admin.reports.index') // Assuming an admin reports index exists, or redirect back
+            ->with('success', 'Laporan berhasil diteruskan.');
+    }
+
+    /**
+     * Display a listing of reports for admin.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function adminIndex()
+    {
+        // This method will list all reports for admin, potentially with filtering
+        // For now, let's redirect to dashboard as a placeholder
+        return redirect()->route('admin.dashboard')->with('info', 'Admin reports index is not yet implemented.');
     }
 }

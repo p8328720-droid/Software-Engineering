@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\EscalationController;
 use App\Http\Controllers\Admin\MonitoringController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UserController;
@@ -37,4 +38,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
     Route::get('/monitoring/{id}', [MonitoringController::class, 'show'])->name('monitoring.show');
     Route::get('/escalation', [EscalationController::class, 'index'])->name('escalation.index');
+
+    // Report Management for Admins
+    Route::patch('/reports/{report}/verify', [ReportController::class, 'verifyReport'])->name('reports.verify');
+    Route::patch('/reports/{report}/forward', [ReportController::class, 'forwardReport'])->name('reports.forward');
+
+    // Admin reports index route
+    Route::get('/reports', [ReportController::class, 'adminIndex'])->name('reports.index');
+    Route::get('/reports/{id}', [ReportController::class, 'show'])->name('reports.show');
 });
