@@ -93,7 +93,7 @@ class ReportController extends Controller
             
         // Render the unified reports view
         return view('reports.show', compact('report', 'technicians'));
-    }
+}
     
     /**
      * Verify a report and assign a technician.
