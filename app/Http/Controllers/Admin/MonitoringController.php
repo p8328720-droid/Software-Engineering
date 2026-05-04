@@ -25,7 +25,7 @@ class MonitoringController extends Controller
             ];
         }
         
-        return view('supervisor.monitoring.index', compact('performance'));
+        return view('admin.monitoring.index', compact('performance'));
     }
 
     public function show($id)
@@ -37,6 +37,6 @@ class MonitoringController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
             
-        return view('supervisor.monitoring.show', compact('technician', 'tasks'));
+        return view('admin.monitoring.show', compact('technician', 'tasks'));
     }
 }

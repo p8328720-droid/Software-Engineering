@@ -10,7 +10,7 @@ class TrackingController extends Controller
 {
     public function index()
     {
-        return view('mahasiswa.tracking');
+        return view('pelapor.tracking');
     }
 
     public function show($code)

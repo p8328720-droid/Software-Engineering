@@ -17,7 +17,7 @@
             </div>
         @endif
 
-        <form action="{{ route('mahasiswa.reports.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('pelapor.reports.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
             <div class="mb-3">
@@ -84,7 +84,7 @@
             </button>
   <i class="fas fa-paper-plane me-2"></i> Kirim Laporan
             </button>
-            <a href="{{ route('mahasiswa.dashboard') }}" class="btn btn-secondary">Batal</a>
+            <a href="{{ route('pelapor.dashboard') }}" class="btn btn-secondary">Batal</a>
         </form>
     </div>
 </div>

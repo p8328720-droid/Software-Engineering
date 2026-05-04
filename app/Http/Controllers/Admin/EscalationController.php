@@ -15,6 +15,6 @@ class EscalationController extends Controller
             ->with(['user', 'facility', 'technicianAssignments.technician'])
             ->get();
             
-        return view('supervisor.escalation.index', compact('escalatedReports'));
+        return view('admin.escalation.index', compact('escalatedReports'));
     }
 }

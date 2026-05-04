@@ -36,6 +36,16 @@
                     <i class="fas fa-history me-2"></i> Audit Trail
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('supervisor.monitoring.*') ? 'active' : '' }}" href="{{ route('admin.monitoring.index') }}">
+                    <i class="fas fa-chart-line me-2"></i> Monitoring Kinerja
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('supervisor.escalation.*') ? 'active' : '' }}" href="{{ route('admin.escalation.index') }}">
+                    <i class="fas fa-arrow-up me-2"></i> Eskalasi Laporan
+                </a>
+            </li>
         @elseif(Auth::user()->isTeknisi())
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('teknisi.dashboard') ? 'active' : '' }}" href="{{ route('teknisi.dashboard') }}">

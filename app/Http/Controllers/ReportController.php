@@ -21,12 +21,12 @@ class ReportController extends Controller
     {
         $user = Auth::user();
         
-        if ($user->isMahasiswa()) {
+        if ($user->isPelapor()) {
             $reports = Report::with('facility')
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
-            return view('mahasiswa.reports.index', compact('reports'));
+            return view('pelapor.reports.index', compact('reports'));
         }
         
         // Add logic for other roles if they have an index view
@@ -35,17 +35,17 @@ class ReportController extends Controller
 
     public function create()
     {
-        if (!Auth::user()->isMahasiswa()) {
+        if (!Auth::user()->isPelapor()) {
             abort(403);
         }
         
         $facilities = Facility::where('is_active', true)->get();
-        return view('mahasiswa.reports.create', compact('facilities'));
+        return view('pelapor.reports.create', compact('facilities'));
     }
 
     public function store(Request $request)
     {
-        if (!Auth::user()->isMahasiswa()) {
+        if (!Auth::user()->isPelapor()) {
             abort(403);
         }
 
@@ -72,7 +72,7 @@ class ReportController extends Controller
         
         $report = Report::create($data);
         
-        return redirect()->route('mahasiswa.reports.show', $report)
+        return redirect()->route('pelapor.reports.show', $report)
             ->with('success', 'Laporan berhasil dikirim');
     }
 
@@ -82,11 +82,11 @@ class ReportController extends Controller
         $report = Report::with(['user', 'facility', 'comments.user'])
             ->findOrFail($id);
             
-        if ($user->isMahasiswa() && $report->user_id !== $user->id) {
+        if ($user->isPelapor() && $report->user_id !== $user->id) {
             abort(403);
         }
         
-        $view = 'mahasiswa.reports.show';
+        $view = 'pelapor.reports.show';
         if ($user->isTeknisi()) {
             $view = 'teknisi.reports.show';
         } elseif ($user->isSupervisor() || $user->isAdmin()) {
