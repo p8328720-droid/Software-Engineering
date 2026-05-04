@@ -1,8 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', 'Edit Aturan SLA')
 
-@section('admin-content')
+@section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="fas fa-edit me-2 text-orange"></i>Edit Aturan SLA</h1>
     <a href="{{ route('admin.sla') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a>

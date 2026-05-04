@@ -42,26 +42,4 @@ class Report extends Model
     {
         return $this->hasMany(TechnicianAssignment::class);
     }
-
-    public function getStatusBadgeAttribute()
-    {
-        $badges = [
-            'pending' => '<span class="badge bg-secondary">Menunggu</span>',
-            'verified' => '<span class="badge bg-info">Diverifikasi</span>',
-            'in_progress' => '<span class="badge bg-warning">Diproses</span>',
-            'completed' => '<span class="badge bg-success">Selesai</span>',
-            'rejected' => '<span class="badge bg-danger">Ditolak</span>',
-        ];
-        return $badges[$this->status] ?? '';
-    }
-
-    public function getUrgencyBadgeAttribute()
-    {
-        $badges = [
-            'low' => '<span class="badge bg-success">Rendah</span>',
-            'medium' => '<span class="badge bg-warning">Sedang</span>',
-            'high' => '<span class="badge bg-danger">Tinggi</span>',
-        ];
-        return $badges[$this->urgency] ?? '';
-    }
 }

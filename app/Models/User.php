@@ -29,6 +29,26 @@ class User extends Authenticatable
         return $this->hasMany(TechnicianAssignment::class, 'technician_id');
     }
 
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isMahasiswa()
+    {
+        return $this->role === 'mahasiswa';
+    }
+
+    public function isTeknisi()
+    {
+        return $this->role === 'teknisi';
+    }
+
+    public function isSupervisor()
+    {
+        return $this->role === 'supervisor';
+    }
+
     public function getAvatarUrlAttribute()
     {
         return "https://ui-avatars.com/api/?background=FF6B35&color=fff&size=100&name=" . urlencode($this->name);

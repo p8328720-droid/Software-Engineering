@@ -1,8 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', 'Edit User')
 
-@section('admin-content')
+@section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="fas fa-user-edit me-2 text-orange"></i>Edit User</h1>
     <a href="{{ route('admin.users') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Kembali</a>

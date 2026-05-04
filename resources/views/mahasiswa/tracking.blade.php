@@ -1,8 +1,8 @@
-@extends('layouts.mahasiswa')
+@extends('layouts.dashboard')
 
 @section('title', 'Tracking Laporan')
 
-@section('mahasiswa-content')
+@section('dashboard-content')
 <div class="card border-0">
     <div class="card-header bg-white"><h5 class="mb-0"><i class="fas fa-search text-orange me-2"></i>Tracking Laporan</h5></div>
     <div class="card-body">

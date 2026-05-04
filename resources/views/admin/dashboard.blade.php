@@ -1,8 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', 'Admin Dashboard')
 
-@section('admin-content')
+@section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-4 border-bottom">
     <h1 class="h2"><i class="fas fa-tachometer-alt me-2 text-orange"></i>Dashboard Admin</h1>
     <div class="btn-toolbar">
@@ -171,7 +171,7 @@
                                 <td>{{ $report->user->name }}</td>
                                 <td>{{ $report->facility->name }}</td>
                                 <td>{{ Str::limit($report->title, 30) }}</td>
-                                <td>{!! $report->status_badge !!}</td>
+                                <td><x-report-status :status="$report->status" /></td>
                                 <td>
                                     @if($report->sla_deadline < now() && $report->status != 'completed')
                                         <span class="text-danger"><i class="fas fa-exclamation-circle"></i> Terlambat</span>

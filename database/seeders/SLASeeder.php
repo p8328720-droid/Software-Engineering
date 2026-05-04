@@ -12,41 +12,39 @@ class SLASeeder extends Seeder
      */
     public function run(): void
     {
-        $slaSettings = [
-            // Laboratorium
-            ['facility_category' => 'Laboratorium', 'priority' => 1, 'hours_limit' => 48, 'is_active' => true],
-            ['facility_category' => 'Laboratorium', 'priority' => 2, 'hours_limit' => 24, 'is_active' => true],
-            ['facility_category' => 'Laboratorium', 'priority' => 3, 'hours_limit' => 12, 'is_active' => true],
-            
-            // Ruang Kuliah
-            ['facility_category' => 'Ruang Kuliah', 'priority' => 1, 'hours_limit' => 72, 'is_active' => true],
-            ['facility_category' => 'Ruang Kuliah', 'priority' => 2, 'hours_limit' => 48, 'is_active' => true],
-            ['facility_category' => 'Ruang Kuliah', 'priority' => 3, 'hours_limit' => 24, 'is_active' => true],
-            
-            // Fasilitas Umum
-            ['facility_category' => 'Fasilitas Umum', 'priority' => 1, 'hours_limit' => 96, 'is_active' => true],
-            ['facility_category' => 'Fasilitas Umum', 'priority' => 2, 'hours_limit' => 48, 'is_active' => true],
-            ['facility_category' => 'Fasilitas Umum', 'priority' => 3, 'hours_limit' => 24, 'is_active' => true],
-            
-            // Area Parkir
-            ['facility_category' => 'Area Parkir', 'priority' => 1, 'hours_limit' => 48, 'is_active' => true],
-            ['facility_category' => 'Area Parkir', 'priority' => 2, 'hours_limit' => 24, 'is_active' => true],
-            ['facility_category' => 'Area Parkir', 'priority' => 3, 'hours_limit' => 12, 'is_active' => true],
-            
-            // Olahraga
-            ['facility_category' => 'Olahraga', 'priority' => 1, 'hours_limit' => 72, 'is_active' => true],
-            ['facility_category' => 'Olahraga', 'priority' => 2, 'hours_limit' => 48, 'is_active' => true],
-            ['facility_category' => 'Olahraga', 'priority' => 3, 'hours_limit' => 24, 'is_active' => true],
-        ];
-        
-        foreach ($slaSettings as $sla) {
-            SLA::updateOrCreate(
-                [
-                    'facility_category' => $sla['facility_category'],
-                    'priority' => $sla['priority'],
-                ],
-                $sla
-            );
+        $categories = ['AC', 'Laboratorium', 'Ruang Kuliah', 'Fasilitas Umum', 'Area Parkir', 'Olahraga'];
+        $urgencies = ['low', 'medium', 'high'];
+
+        foreach ($categories as $category) {
+            foreach ($urgencies as $urgency) {
+                $response = 24;
+                $resolution = 72;
+
+                if ($urgency === 'medium') {
+                    $response = 12;
+                    $resolution = 48;
+                } elseif ($urgency === 'high') {
+                    $response = 4;
+                    $resolution = 24;
+                }
+
+                // Adjust based on category
+                if ($category === 'Laboratorium' || $category === 'Ruang Kuliah') {
+                    $resolution -= 12;
+                }
+
+                SLA::updateOrCreate(
+                    [
+                        'facility_category' => $category,
+                        'urgency' => $urgency,
+                    ],
+                    [
+                        'response_hours' => $response,
+                        'resolution_hours' => $resolution,
+                        'is_active' => true,
+                    ]
+                );
+            }
         }
     }
 }

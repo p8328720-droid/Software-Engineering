@@ -1,8 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', 'Kelola Users')
 
-@section('admin-content')
+@section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="fas fa-users me-2 text-orange"></i>Kelola Users</h1>
     <a href="{{ route('admin.users.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Tambah User</a>

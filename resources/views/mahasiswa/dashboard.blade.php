@@ -1,8 +1,8 @@
-@extends('layouts.mahasiswa')
+@extends('layouts.dashboard')
 
 @section('title', 'Dashboard Mahasiswa')
 
-@section('mahasiswa-content')
+@section('dashboard-content')
 <div class="row mb-4">
     <div class="col-md-3 mb-3"><div class="card text-center border-0"><div class="card-body"><i class="fas fa-flag-checkered fa-3x text-orange mb-2"></i><h5>Total Laporan</h5><h2 class="text-orange">{{ $stats['total_reports'] }}</h2></div></div></div>
     <div class="col-md-3 mb-3"><div class="card text-center border-0"><div class="card-body"><i class="fas fa-spinner fa-3x text-warning mb-2"></i><h5>Dalam Proses</h5><h2>{{ $stats['in_progress_reports'] }}</h2></div></div></div>
@@ -18,7 +18,7 @@
                 <thead><tr class="table-light"><th>ID</th><th>Judul</th><th>Fasilitas</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
                 <tbody>
                     @forelse($recent_reports as $report)
-                    <tr><td>#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td><td>{{ $report->title }}</td><td>{{ $report->facility->name }}</td><td>{!! $report->status_badge !!}</td><td>{{ $report->created_at->format('d/m/Y') }}</td><td><a href="{{ route('mahasiswa.reports.show', $report) }}" class="btn btn-sm btn-outline-primary">Detail</a></td></tr>
+                    <tr><td>#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td><td>{{ $report->title }}</td><td>{{ $report->facility->name }}</td><td><x-report-status :status="$report->status" /></td><td>{{ $report->created_at->format('d/m/Y') }}</td><td><a href="{{ route('mahasiswa.reports.show', $report) }}" class="btn btn-sm btn-outline-primary">Detail</a></td></tr>
                     @empty
                     <tr><td colspan="6" class="text-center py-4">Belum ada laporan</td></tr>
                     @endforelse

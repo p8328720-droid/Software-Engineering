@@ -1,8 +1,8 @@
-@extends('layouts.supervisor')
+@extends('layouts.dashboard')
 
 @section('title', 'Monitoring Kinerja')
 
-@section('supervisor-content')
+@section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom"><h1 class="h2"><i class="fas fa-chart-line text-orange me-2"></i>Monitoring Kinerja Teknisi</h1></div>
 <div class="card border-0"><div class="card-body"><div class="table-responsive"><table class="table table-hover"><thead><tr class="table-light"><th>No</th><th>Nama Teknisi</th><th>Total Tugas</th><th>Tugas Selesai</th><th>Completion Rate</th><th>Aksi</th></tr></thead><tbody>@forelse($performance as $index => $p)<tr><td>{{ $index+1 }}</td><td><div class="d-flex align-items-center"><img src="{{ $p['technician']->avatar_url }}" class="rounded-circle me-2" width="32">{{ $p['technician']->name }}</div></td><td>{{ $p['total_tasks'] }}</td><td>{{ $p['completed_tasks'] }}</td><td><div class="progress" style="height:8px"><div class="progress-bar bg-{{ $p['completion_rate'] >= 80 ? 'success' : ($p['completion_rate'] >= 50 ? 'warning' : 'danger') }}" style="width:{{ $p['completion_rate'] }}%"></div></div><small>{{ round($p['completion_rate']) }}%</small></td><td><a href="{{ route('supervisor.monitoring.show', $p['technician']->id) }}" class="btn btn-sm btn-outline-primary">Detail</a></td></tr>@empty<tr><td colspan="6" class="text-center py-4">Belum ada data teknisi</td></tr>@endforelse</tbody></table></div></div></div>
 @endsection

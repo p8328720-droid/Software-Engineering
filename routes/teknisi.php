@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Teknisi\DashboardController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Teknisi\TaskController;
-use App\Http\Controllers\Teknisi\ReportController;
+use App\Http\Controllers\ReportController;
 
 Route::prefix('teknisi')->name('teknisi.')->middleware(['auth', 'role:teknisi'])->group(function () {
     

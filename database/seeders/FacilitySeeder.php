@@ -61,8 +61,6 @@ class FacilitySeeder extends Seeder
                 [
                     'category' => $facility['category'],
                     'description' => $facility['description'],
-                    'risk_level' => 1,
-                    'total_reports' => 0,
                 ]
             );
         }

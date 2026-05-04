@@ -1,8 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', 'Audit Trail')
 
-@section('admin-content')
+@section('dashboard-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2"><i class="fas fa-history me-2 text-orange"></i>Audit Trail</h1>
 </div>

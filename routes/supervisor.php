@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Supervisor\DashboardController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Supervisor\MonitoringController;
 use App\Http\Controllers\Supervisor\EscalationController;
 
