@@ -22,8 +22,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.facilities.*') ? 'active' : '' }}" href="{{ route('admin.facilities.index') }}">
-                    <i class="fas fa-building me-2"></i> Kelola Fasilitas
+                <a class="nav-link {{ request()->routeIs('admin.rooms.*') ? 'active' : '' }}" href="{{ route('admin.rooms.index') }}">
+                    <i class="fas fa-building me-2"></i> Kelola Ruangan
                 </a>
             </li>
             <li class="nav-item">

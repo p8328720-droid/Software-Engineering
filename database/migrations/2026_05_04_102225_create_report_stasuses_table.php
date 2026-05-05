@@ -8,12 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('comments', function (Blueprint $table) {
+        Schema::create('report_statuses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('report_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->text('comment');
-            $table->enum('user_type', ['mahasiswa', 'teknisi', 'supervisor', 'admin']);
+            $table->enum('status', ['pending', 'in_progress', 'completed', 'rejected']);
+            $table->text('description')->nullable();
             $table->timestamps();
             
             $table->index('report_id');
@@ -22,6 +22,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('comments');
+        Schema::dropIfExists('report_statuses');
     }
 };

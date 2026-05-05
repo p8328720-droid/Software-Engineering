@@ -26,16 +26,16 @@ class UserSeeder extends Seeder
             ]
         );
         
-        // Supervisor
-        User::updateOrCreate(
-            ['email' => 'supervisor@siruka.ac.id'],
-            [
-                'name' => 'Supervisor Utama',
-                'password' => Hash::make('password'),
-                'role' => 'supervisor',
-                'phone' => '081234567891',
-            ]
-        );
+        // // Supervisor
+        // User::updateOrCreate(
+        //     ['email' => 'supervisor@siruka.ac.id'],
+        //     [
+        //         'name' => 'Supervisor Utama',
+        //         'password' => Hash::make('password'),
+        //         'role' => 'supervisor',
+        //         'phone' => '081234567891',
+        //     ]
+        // );
         
         // Teknisi
         User::updateOrCreate(

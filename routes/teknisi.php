@@ -11,6 +11,7 @@ Route::prefix('teknisi')->name('teknisi.')->middleware(['auth', 'role:teknisi'])
     
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
+    Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
     
     Route::get('/reports/{id}', [ReportController::class, 'show'])->name('reports.show');
 });

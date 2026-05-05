@@ -2,12 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use App\Models\AuditLog;
+use App\Models\Category;
 use App\Models\Report;
-use App\Models\User;
-use App\Models\Facility;
-use App\Models\ReportStatus;
+use App\Models\Room;
 use App\Models\TechnicianAssignment;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class ReportSeeder extends Seeder
 {
@@ -16,115 +17,114 @@ class ReportSeeder extends Seeder
      */
     public function run(): void
     {
-        $students = User::where('role', 'pelapor')->get();
-        $facilities = Facility::all();
-        $technicians = User::where('role', 'teknisi')->get();
-        $supervisors = User::where('role', 'supervisor')->get();
-        
-        if ($students->isEmpty() || $facilities->isEmpty() || $technicians->isEmpty()) {
+        $pelapors = User::where('role', 'pelapor')->get();
+        $teknisis = User::where('role', 'teknisi')->get();
+        $admins = User::where('role', 'admin')->get();
+
+        $rooms = Room::all();
+        $categories = Category::all();
+
+        // Pastikan data master sudah ada sebelum bikin laporan
+        if ($pelapors->isEmpty() || $rooms->isEmpty() || $categories->isEmpty() || $teknisis->isEmpty() || $admins->isEmpty()) {
             return;
         }
 
-        // Create sample reports
+        // Data sampel laporan yang disesuaikan dengan MVP kita
         $reportData = [
             [
-                'title' => 'AC Ruang Kuliah 101 Tidak Dingin',
-                'description' => 'AC di ruang kuliah 101 tidak mengeluarkan udara dingin, hanya angin biasa.',
-                'urgency' => 'medium',
-                'status' => 'in_progress',
-                'facility_name' => 'Ruang Kuliah 101',
+                'description' => 'AC di ruang kuliah tidak mengeluarkan udara dingin, hanya angin panas.',
+                'status' => 'Processing',
+                'category_name' => 'AC & Pendingin Ruangan',
             ],
             [
-                'title' => 'Proyektor Lab Komputer 1 Rusak',
-                'description' => 'Proyektor di Lab Komputer 1 tidak bisa menyala, lampu indikator berkedip merah.',
-                'urgency' => 'high',
-                'status' => 'pending',
-                'facility_name' => 'Lab Komputer 1',
+                'description' => 'Proyektor tidak bisa menyala, lampu indikator berkedip merah terus.',
+                'status' => 'Pending',
+                'category_name' => 'Proyektor & Audio Visual',
             ],
             [
-                'title' => 'Toilet Pria Gedung A Mampet',
-                'description' => 'Toilet di lantai 1 Gedung A bagian pria mengalami mampet.',
-                'urgency' => 'medium',
-                'status' => 'pending',
-                'facility_name' => 'Toilet Pria Gedung A',
+                'description' => 'Air dari toilet pria meluber ke luar, sepertinya pipanya mampet.',
+                'status' => 'Pending',
+                'category_name' => 'Kebocoran & Pipa Air',
             ],
             [
-                'title' => 'Keran Air Mushola Bocor',
-                'description' => 'Keran air di area wudhu mushola bocor.',
-                'urgency' => 'low',
-                'status' => 'completed',
-                'facility_name' => 'Mushola',
+                'description' => 'Lampu neon di tengah ruangan mati satu, agak gelap kalau kuliah sore.',
+                'status' => 'Completed',
+                'category_name' => 'Kelistrikan & Lampu',
             ],
         ];
-        
+
         foreach ($reportData as $data) {
-            $facility = Facility::where('name', $data['facility_name'])->first();
-            if (!$facility) continue;
-            
-            $reporter = $students->random();
-            
+            // Ambil data acak / sesuaikan
+            $room = $rooms->random();
+            $category = Category::where('name', $data['category_name'])->first() ?? $categories->random();
+            $pelapor = $pelapors->random();
+            $admin = $admins->first();
+            $teknisi = $teknisis->random();
+
+            // Waktu pembuatan laporan diacak antara 1 sampai 10 hari yang lalu
+            $createdAt = now()->subDays(rand(1, 10));
+
+            // 1. BUAT LAPORAN
             $report = Report::create([
-                'user_id' => $reporter->id,
-                'facility_id' => $facility->id,
-                'title' => $data['title'],
+                'reporter_id' => $pelapor->id,
+                'room_id' => $room->id,
+                'category_id' => $category->id,
                 'description' => $data['description'],
-                'location_detail' => $facility->location,
-                'urgency' => $data['urgency'],
                 'status' => $data['status'],
-                'sla_deadline' => now()->addHours(24),
-                'created_at' => now()->subDays(rand(1, 10)),
+                // SLA dihitung otomatis dari tabel kategori
+                'deadline' => (clone $createdAt)->addHours($category->sla_hours),
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
-            
-            // Create initial status
-            ReportStatus::create([
+
+            // 2. BUAT AUDIT LOG AWAL (Laporan Dibuat)
+            AuditLog::create([
                 'report_id' => $report->id,
-                'user_id' => $reporter->id,
-                'status' => 'pending',
-                'description' => 'Laporan dibuat',
-                'created_at' => $report->created_at,
+                'user_id' => $pelapor->id,
+                'status_changed_to' => 'Pending',
+                'notes' => 'Laporan pertama kali dibuat oleh mahasiswa',
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
-            
-            if ($data['status'] !== 'pending') {
-                $technician = $technicians->random();
-                $supervisor = $supervisors->first() ?? User::where('role', 'admin')->first();
-                
+
+            // 3. JIKA STATUSNYA DIPROSES / SELESAI
+            if ($data['status'] !== 'Pending') {
+                $assignedAt = (clone $createdAt)->addHours(1); // Ditugaskan 1 jam setelah lapor
+
+                // Buat Penugasan Teknisi
                 TechnicianAssignment::create([
                     'report_id' => $report->id,
-                    'technician_id' => $technician->id,
-                    'assigned_by' => $supervisor->id,
-                    'assigned_at' => $report->created_at->addHour(),
-                    'started_at' => $report->created_at->addHours(2),
-                    'completed_at' => $data['status'] === 'completed' ? $report->created_at->addHours(5) : null,
-                    'notes' => 'Tolong segera diperbaiki',
+                    'technician_id' => $teknisi->id,
+                    'assigned_by' => $admin->id,
+                    'assigned_at' => $assignedAt,
+                    'started_at' => (clone $assignedAt)->addMinutes(30),
+                    'completed_at' => $data['status'] === 'Completed' ? (clone $assignedAt)->addHours(3) : null,
+                    'notes' => 'Mohon dicek segera alatnya.',
                 ]);
 
-                ReportStatus::create([
+                // Audit Log: Admin mengubah status jadi Processing
+                AuditLog::create([
                     'report_id' => $report->id,
-                    'user_id' => $supervisor->id,
-                    'status' => 'verified',
-                    'description' => 'Laporan diverifikasi dan ditugaskan ke teknisi',
-                    'created_at' => $report->created_at->addHour(),
+                    'user_id' => $admin->id,
+                    'status_changed_to' => 'Processing',
+                    'notes' => 'Laporan diverifikasi dan ditugaskan ke teknisi',
+                    'created_at' => $assignedAt,
+                    'updated_at' => $assignedAt,
                 ]);
 
-                if ($data['status'] === 'in_progress' || $data['status'] === 'completed') {
-                    ReportStatus::create([
-                        'report_id' => $report->id,
-                        'user_id' => $technician->id,
-                        'status' => 'in_progress',
-                        'description' => 'Pekerjaan dimulai',
-                        'created_at' => $report->created_at->addHours(2),
-                    ]);
-                }
+                // 4. JIKA STATUSNYA SELESAI
+                if ($data['status'] === 'Completed') {
+                    $completedAt = (clone $assignedAt)->addHours(3);
 
-                if ($data['status'] === 'completed') {
-                    ReportStatus::create([
+                    // Audit Log: Teknisi menyelesaikan laporan
+                    AuditLog::create([
                         'report_id' => $report->id,
-                        'user_id' => $technician->id,
-                        'status' => 'completed',
-                        'description' => 'Pekerjaan selesai',
-                        'created_at' => $report->created_at->addHours(5),
+                        'user_id' => $teknisi->id,
+                        'status_changed_to' => 'Completed',
+                        'notes' => 'Pekerjaan selesai, komponen sudah diganti.',
+                        'created_at' => $completedAt,
+                        'updated_at' => $completedAt,
                     ]);
-                    $report->update(['resolved_at' => $report->created_at->addHours(5)]);
                 }
             }
         }

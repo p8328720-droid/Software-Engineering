@@ -3,51 +3,48 @@
 namespace App\Services;
 
 use App\Models\Report;
-use App\Models\Facility;
+use App\Models\Sla;
 use Carbon\Carbon;
 
 class ReportService
 {
     /**
-     * Calculate SLA deadline based on facility and urgency.
-     * 
-     * @param Facility $facility
-     * @param string $urgency
-     * @return Carbon
+     * Hitung deadline SLA berdasarkan kategori fasilitas dan tingkat urgensi.
+     * Menggunakan tabel 'sla' sebagai matriks referensi.
      */
-    public function calculateSLADeadline(Facility $facility, string $urgency): Carbon
+    public function calculateSLADeadline(string $categoryName, string $urgency): Carbon
     {
-        $slaHours = $facility->sla_hours;
+        // Cari aturan SLA yang aktif di database
+        $sla = Sla::where('facility_category', $categoryName)
+                  ->where('urgency', $urgency)
+                  ->where('is_active', true)
+                  ->first();
+
+        // Fallback: Jika tidak ketemu di tabel SLA, pakai default 72 jam (3 hari)
+        $hours = $sla ? $sla->resolution_hours : 72;
         
-        if ($urgency == 'high') {
-            $slaHours = $slaHours * 0.5;
-        } elseif ($urgency == 'medium') {
-            $slaHours = $slaHours * 0.75;
-        }
-        
-        return now()->addHours($slaHours);
+        return now()->addHours($hours);
     }
 
     /**
-     * Get statistics for a user or global.
-     * 
-     * @param int|null $userId
-     * @return array
+     * Ambil statistik laporan (global atau per user).
+     * Menggunakan kolom 'reporter_id' sesuai skema MVP.
      */
     public function getStats(?int $userId = null): array
     {
         $query = Report::query();
         
         if ($userId) {
-            $query->where('user_id', $userId);
+            $query->where('reporter_id', $userId);
         }
         
+        // Menggunakan lowercase status sesuai kesepakatan enum
         return [
-            'total' => (clone $query)->count(),
-            'pending' => (clone $query)->where('status', 'pending')->count(),
+            'total'       => (clone $query)->count(),
+            'pending'     => (clone $query)->where('status', 'pending')->count(),
             'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
-            'completed' => (clone $query)->where('status', 'completed')->count(),
-            'rejected' => (clone $query)->where('status', 'rejected')->count(),
+            'completed'   => (clone $query)->where('status', 'completed')->count(),
+            'rejected'    => (clone $query)->where('status', 'rejected')->count(),
         ];
     }
 }

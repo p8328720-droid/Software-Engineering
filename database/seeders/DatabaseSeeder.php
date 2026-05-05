@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             SLASeeder::class,
             ReportSeeder::class,
             CommentSeeder::class,
+            CategorySeeder::class,
+            RoomSeeder::class,
         ]);
     }
 }

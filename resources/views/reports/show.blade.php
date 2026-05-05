@@ -5,55 +5,56 @@
 @section('dashboard-content')
     <div class="container-fluid px-0">
 
-        {{-- PROGRESS TRACKER HORIZONTAL --}}
-        @if(Auth::user()->isPelapor() || Auth::user()->isTeknisi())
+        {{-- PROGRESS TRACKER --}}
+        @if(Auth::user()->role === 'pelapor' || Auth::user()->role === 'teknisi')
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3">
                     <h5 class="mb-0"><i class="fas fa-tasks text-primary me-2"></i>Status Tracking Laporan</h5>
                 </div>
                 <div class="card-body py-4">
-                    @php
-                        $currentLevel = 1;
-                        if ($report->status === 'in_progress') {
-                            $currentLevel = 2;
-                        } elseif ($report->status === 'completed') {
-                            $currentLevel = 3;
-                        }
-                    @endphp
-
-                    <div class="progress-tracker">
-                        <div class="step {{ $currentLevel > 1 ? 'completed' : 'active' }}">
-                            <div class="step-icon"><i class="fas fa-{{ $currentLevel > 1 ? 'check' : 'clock' }}"></i></div>
-                            <div class="step-label">Menunggu Verifikasi</div>
-                            <div class="step-date">{{ $report->created_at->format('d M Y, H:i') }}</div>
+                    @if($report->status === 'rejected')
+                        <div class="alert alert-danger text-center mb-0">
+                            <i class="fas fa-times-circle me-2"></i>Laporan ini telah ditolak.
                         </div>
+                    @else
+                        @php
+                            // Sinkronisasi dengan lowercase enum
+                            $currentLevel = 1;
+                            if ($report->status === 'in_progress')
+                                $currentLevel = 2;
+                            if ($report->status === 'completed')
+                                $currentLevel = 3;
+                        @endphp
 
-                        <div class="step {{ $currentLevel > 2 ? 'completed' : ($currentLevel == 2 ? 'active' : '') }}">
-                            <div class="step-icon"><i
-                                    class="fas fa-{{ $currentLevel > 2 ? 'check' : ($currentLevel == 2 ? 'spinner fa-spin' : 'cog') }}"></i>
+                        <div class="progress-tracker">
+                            <div class="step {{ $currentLevel > 1 ? 'completed' : 'active' }}">
+                                <div class="step-icon"><i class="fas fa-{{ $currentLevel > 1 ? 'check' : 'clock' }}"></i></div>
+                                <div class="step-label">Menunggu Verifikasi</div>
+                                <div class="step-date">{{ $report->created_at->format('d M Y') }}</div>
                             </div>
-                            <div class="step-label">Dalam Proses</div>
-                            <div class="step-date">
-                                {{ $currentLevel >= 2 ? $report->updated_at->format('d M Y, H:i') : '-' }}
+
+                            <div class="step {{ $currentLevel > 2 ? 'completed' : ($currentLevel == 2 ? 'active' : '') }}">
+                                <div class="step-icon"><i
+                                        class="fas fa-{{ $currentLevel > 2 ? 'check' : ($currentLevel == 2 ? 'spinner fa-spin' : 'cog') }}"></i>
+                                </div>
+                                <div class="step-label">Dalam Proses</div>
+                                <div class="step-date">{{ $currentLevel >= 2 ? $report->updated_at->format('d M Y') : '-' }}</div>
+                            </div>
+
+                            <div class="step {{ $currentLevel == 3 ? 'completed' : '' }}">
+                                <div class="step-icon"><i class="fas fa-{{ $currentLevel == 3 ? 'check' : 'flag-checkered' }}"></i>
+                                </div>
+                                <div class="step-label">Selesai</div>
+                                <div class="step-date">{{ $currentLevel == 3 ? $report->updated_at->format('d M Y') : '-' }}</div>
                             </div>
                         </div>
-
-                        <div class="step {{ $currentLevel == 3 ? 'completed' : '' }}">
-                            <div class="step-icon"><i class="fas fa-{{ $currentLevel == 3 ? 'check' : 'flag-checkered' }}"></i>
-                            </div>
-                            <div class="step-label">Selesai</div>
-                            <div class="step-date">
-                                {{ $currentLevel == 3 ? $report->updated_at->format('d M Y, H:i') : '-' }}
-                            </div>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         @endif
 
-        {{-- Main Content Row --}}
         <div class="row">
-            {{-- Kolom Kiri: Detail Utama Laporan --}}
+            {{-- KOLOM KIRI: DETAIL LAPORAN --}}
             <div class="col-md-8">
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white py-3">
@@ -61,248 +62,185 @@
                     </div>
                     <div class="card-body">
                         <div class="row mb-4">
-                            <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="col-md-6">
                                 <label class="text-muted small fw-bold text-uppercase">Judul</label>
                                 <p class="mb-0 fw-medium">{{ $report->title }}</p>
                             </div>
                             <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Fasilitas</label>
-                                <p class="mb-0">{{ $report->facility->name }} - {{ $report->facility->location }}</p>
+                                <label class="text-muted small fw-bold text-uppercase">Ruangan</label>
+                                <p class="mb-0">{{ $report->room->name ?? '-' }}</p>
                             </div>
                         </div>
 
                         <div class="row mb-4">
-                            <div class="col-md-6 mb-3 mb-md-0">
-                                <label class="text-muted small fw-bold text-uppercase">Lokasi Detail</label>
-                                <p class="mb-0">{{ $report->location_detail }}</p>
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold text-uppercase">Kategori</label>
+                                <p class="mb-0"><span class="badge bg-secondary">{{ $report->sla->facility_category ?? '-' }}</span>
+                                </p>
                             </div>
                             <div class="col-md-6">
                                 <label class="text-muted small fw-bold text-uppercase">Tingkat Urgensi</label>
                                 <div class="mt-1">
-                                    <x-urgency-badge :urgency="$report->urgency" />
+                                    @if($report->urgency == 'high')
+                                        <span class="badge bg-danger">High / Emergency</span>
+                                    @elseif($report->urgency == 'medium')
+                                        <span class="badge bg-warning text-dark">Medium</span>
+                                    @else
+                                        <span class="badge bg-info text-dark">Low</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
 
-                        @if(Auth::user()->isTeknisi() || Auth::user()->isAdmin())
+                        @if(Auth::user()->role !== 'pelapor')
                             <div class="row mb-4">
-                                <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="col-md-6">
                                     <label class="text-muted small fw-bold text-uppercase">Pelapor</label>
-                                    <p class="mb-0">{{ $report->user->name }}</p>
+                                    <p class="mb-0">{{ $report->reporter->name ?? 'User' }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-muted small fw-bold text-uppercase">Teknisi Bertugas</label>
+                                    <p class="mb-0 fw-bold text-primary">
+                                        {{ $report->assignment->technician->name ?? 'Belum Ditugaskan' }}
+                                    </p>
                                 </div>
                             </div>
                         @endif
 
                         <div class="mb-4">
-                            <label class="text-muted small fw-bold text-uppercase">Deskripsi</label>
-                            <p class="mb-0 bg-light p-3 rounded border">{{ $report->description }}</p>
+                            <label class="text-muted small fw-bold text-uppercase">Deskripsi Masalah</label>
+                            <p class="bg-light p-3 rounded border mb-0">{{ $report->description }}</p>
                         </div>
 
                         @if($report->image_path)
-                            <div class="mb-3">
+                            <div class="mb-0">
                                 <label class="text-muted small fw-bold text-uppercase mb-2">Bukti Foto</label>
-                                <div>
-                                    <img src="{{ asset('storage/' . $report->image_path) }}" alt="Bukti Foto Laporan"
-                                        class="img-thumbnail rounded shadow-sm"
-                                        style="max-width: 100%; height: auto; max-height: 400px; object-fit: contain;">
-                                </div>
+                                <img src="{{ asset('storage/' . $report->image_path) }}"
+                                    class="img-fluid rounded border d-block" style="max-height: 400px; width: auto;">
                             </div>
                         @endif
                     </div>
                 </div>
             </div>
 
-            {{-- Kolom Kanan: Timeline, Comments & Admin Actions --}}
+            {{-- KOLOM KANAN: STATUS, RIWAYAT & AKSI --}}
             <div class="col-md-4">
-
-                {{-- Card Info Status & SLA --}}
+                {{-- STATUS & DEADLINE --}}
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white py-3">
-                        <h5 class="mb-0"><i class="fas fa-info-circle text-info me-2"></i>Status & Waktu</h5>
+                        <h5 class="mb-0 small fw-bold"><i class="fas fa-clock text-info me-2"></i>STATUS & WAKTU</h5>
                     </div>
                     <div class="card-body">
-                        <div class="text-start">
-                            <p class="mb-3 pb-3 border-bottom">
-                                <i class="fas fa-calendar text-muted me-2"></i>
-                                <span class="text-muted">Dilaporkan:</span><br>
-                                <strong class="ms-4">{{ $report->created_at->format('d M Y, H:i') }}</strong>
-                            </p>
-                            <p class="mb-0">
-                                <i class="fas fa-hourglass-half text-danger me-2"></i>
-                                <span class="text-muted">SLA Deadline:</span><br>
-                                <strong class="ms-4 text-danger">{{ $report->sla_deadline->format('d M Y, H:i') }}</strong>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Timeline Section --}}
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0"><i class="fas fa-history text-secondary me-2"></i>Riwayat Timeline</h5>
-                    </div>
-                    <div class="card-body">
-                        @if(isset($report->statusHistory) && $report->statusHistory->isNotEmpty())
-                            @php
-                                $timelineItems = $report->statusHistory->map(function ($history) {
-                                    $statusClass = 'pending';
-                                    if ($history->status == 'in_progress') {
-                                        $statusClass = 'active';
-                                    } elseif ($history->status == 'completed') {
-                                        $statusClass = 'completed';
-                                    }
-                                    return [
-                                        'status' => $statusClass,
-                                        'title' => ucfirst(str_replace('_', ' ', $history->status)),
-                                        'date' => $history->created_at->format('d M Y, H:i'),
-                                        'description' => $history->description ?? ''
-                                    ];
-                                })->toArray();
-                            @endphp
-                            <x-timeline :items="$timelineItems" />
-                        @else
-                            <p class="text-muted text-center">Belum ada riwayat status.</p>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Comments Section (visible for Teknisi and Admin) --}}
-                @if(Auth::user()->isTeknisi() || Auth::user()->isAdmin())
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0"><i class="fas fa-comments text-primary me-2"></i>Komentar</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="comments-list mb-3">
-                                @forelse($report->comments as $comment)
-                                    <div class="d-flex mb-3">
-                                        <img src="{{ $comment->user->avatar_url ?? asset('images/default-avatar.png') }}"
-                                            class="rounded-circle me-2" width="32" alt="{{ $comment->user->name }}">
-                                        <div>
-                                            <strong>{{ $comment->user->name }}</strong>
-                                            <br><small class="text-muted">{{ $comment->created_at->format('d M Y, H:i') }}</small>
-                                            <p class="mb-0 small">{{ $comment->comment }}</p>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <p class="text-muted text-center">Belum ada komentar</p>
-                                @endforelse
-                            </div>
-                            <form action="{{ route('reports.comments.store', $report->id) }}" method="POST">
-                                @csrf
-                                <textarea class="form-control" rows="3" placeholder="Tulis komentar..."
-                                    name="comment"></textarea>
-                                <button type="submit" class="btn btn-primary btn-sm mt-2">Kirim</button>
-                            </form>
-                        </div>
-                    </div>
-                @endif
-
-                {{-- Admin Specific Actions --}}
-                @if(Auth::user()->isAdmin())
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0"><i class="fas fa-cogs text-danger me-2"></i>Aksi Admin</h5>
-                        </div>
-                        <div class="card-body text-center">
-                            @if($report->status == 'pending')
-                                <button type="button" class="btn btn-success me-2 mb-2" data-bs-toggle="modal"
-                                    data-bs-target="#verifyReportModal">
-                                    <i class="fas fa-check me-1"></i>Verifikasi Laporan
-                                </button>
+                        <div class="mb-3 pb-3 border-bottom">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Status</label>
+                            @if($report->status == 'pending') <span class="badge bg-warning text-dark px-3">Pending</span>
+                            @elseif($report->status == 'in_progress') <span class="badge bg-info px-3">Diproses</span>
+                            @elseif($report->status == 'completed') <span class="badge bg-success px-3">Selesai</span>
+                            @elseif($report->status == 'rejected') <span class="badge bg-danger px-3">Ditolak</span>
                             @endif
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Dilaporkan</label>
+                            <span class="fw-medium">{{ $report->created_at->format('d M Y, H:i') }}</span>
+                        </div>
+                        <div class="mb-0">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Batas SLA (Deadline)</label>
+                            <span class="text-danger fw-bold"><i class="fas fa-hourglass-half me-1"></i>
+                                {{ $report->sla_deadline ? $report->sla_deadline->format('d M Y, H:i') : '-' }}</span>
+                        </div>
+                    </div>
+                </div>
 
-                            <button type="button" class="btn btn-info mb-2" data-bs-toggle="modal"
-                                data-bs-target="#forwardReportModal">
-                                <i class="fas fa-paper-plane me-1"></i>Teruskan ke Teknisi
-                            </button>
+                {{-- RIWAYAT / AUDIT LOG --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 small fw-bold"><i class="fas fa-history text-secondary me-2"></i>RIWAYAT & CATATAN
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @forelse($report->auditLogs as $log)
+                                <div class="list-group-item border-0 border-bottom py-3">
+                                    <div class="d-flex w-100 justify-content-between mb-1">
+                                        <small class="fw-bold text-primary">{{ $log->user?->name ?? 'System' }}</small>
+                                        <small class="text-muted small">{{ $log->created_at->diffForHumans() }}</small>
+                                    </div>
+                                    <p class="mb-1 small">
+                                        Status: <span
+                                            class="fw-bold text-capitalize">{{ str_replace('_', ' ', $log->status_changed_to) }}</span>
+                                    </p>
+                                    @if($log->notes)
+                                        <div class="bg-light p-2 rounded small mt-1 border-start border-4 border-info">
+                                            <em>"{{ $log->notes }}"</em>
+                                        </div>
+                                    @endif
+                                </div>
+                            @empty
+                                <div class="p-4 text-center text-muted small">Belum ada riwayat aktivitas.</div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ADMIN ACTIONS --}}
+                @if(Auth::user()->role === 'admin')
+                    <div class="card border-0 shadow-sm mb-4 bg-light border-start border-4 border-danger">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3 small"><i class="fas fa-user-shield me-2 text-danger"></i>KONTROL ADMIN</h6>
+
+                            @if($report->status !== 'completed' && $report->status !== 'rejected')
+                                <button type="button" class="btn btn-primary btn-sm w-100 shadow-sm" data-bs-toggle="modal"
+                                    data-bs-target="#assignTechnicianModal">
+                                    <i
+                                        class="fas fa-user-plus me-2"></i>{{ $report->status === 'pending' ? 'Verifikasi & Tugaskan' : 'Alihkan Teknisi' }}
+                                </button>
+                            @else
+                                <p class="text-muted small mb-0 text-center">Laporan sudah bersifat final.</p>
+                            @endif
                         </div>
                     </div>
                 @endif
-
-            </div> {{-- End Col-md-4 --}}
-        </div> {{-- End Row --}}
-
-        {{-- MODALS dipindahkan ke DALAM section agar tidak merusak layout layout utama --}}
-
-        {{-- Verify Report Modal --}}
-        <div class="modal fade" id="verifyReportModal" tabindex="-1" aria-labelledby="verifyReportModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="verifyReportModalLabel">Verifikasi & Tetapkan Laporan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Verifikasi laporan ini dan tetapkan teknisi yang akan menanganinya.</p>
-                        <form id="verifyForm" action="{{ route('admin.reports.verify', $report->id) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <div class="mb-3">
-                                <label for="assignee_id" class="form-label">Tetapkan ke Teknisi</label>
-                                <select class="form-select" id="assignee_id" name="assignee_id" required>
-                                    <option value="">Pilih Teknisi...</option>
-                                    @foreach($technicians as $technician)
-                                        <option value="{{ $technician->id }}">{{ $technician->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="verification_notes" class="form-label">Catatan Verifikasi (Opsional)</label>
-                                <textarea class="form-control" id="verification_notes" name="verification_notes"
-                                    rows="3"></textarea>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" form="verifyForm" class="btn btn-primary">Verifikasi & Tetapkan</button>
-                    </div>
-                </div>
             </div>
         </div>
+    </div>
 
-        {{-- Forward Report Modal --}}
-        <div class="modal fade" id="forwardReportModal" tabindex="-1" aria-labelledby="forwardReportModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="forwardReportModalLabel">Teruskan Laporan ke Teknisi</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    {{-- MODAL PENUGASAN TEKNISI --}}
+    <div class="modal fade" id="assignTechnicianModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0">
+                <form action="{{ route('admin.reports.assign', $report->id) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-header bg-primary text-white border-0">
+                        <h5 class="modal-title">Penugasan Teknisi</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <p>Pilih teknisi untuk meneruskan laporan ini.</p>
-                        <form id="forwardForm" action="{{ route('admin.reports.forward', $report->id) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <div class="mb-3">
-                                <label for="forward_assignee_id" class="form-label">Tetapkan ke Teknisi</label>
-                                <select class="form-select" id="forward_assignee_id" name="assignee_id" required>
-                                    <option value="">Pilih Teknisi...</option>
-                                    {{-- Loop dinamis menggunakan variabel $technicians --}}
-                                    @foreach($technicians as $technician)
-                                        <option value="{{ $technician->id }}">{{ $technician->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="forwarding_notes" class="form-label">Catatan Penerusan (Opsional)</label>
-                                <textarea class="form-control" id="forwarding_notes" name="forwarding_notes"
-                                    rows="3"></textarea>
-                            </div>
-                        </form>
+                    <div class="modal-body py-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Pilih Teknisi</label>
+                            <select class="form-select" name="assignee_id" required>
+                                <option value="">-- Pilih Teknisi --</option>
+                                @foreach($technicians as $technician)
+                                    <option value="{{ $technician->id }}" {{ ($report->assignment?->technician_id == $technician->id) ? 'selected' : '' }}>
+                                        {{ $technician->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label fw-bold">Catatan Instruksi</label>
+                            <textarea class="form-control" name="notes" rows="3"
+                                placeholder="Berikan instruksi khusus untuk teknisi..."></textarea>
+                        </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer bg-light border-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" form="forwardForm" class="btn btn-primary">Teruskan</button>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm">Simpan Penugasan</button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
-
-    </div> {{-- End Container Fluid --}}
+    </div>
 @endsection
 
 @push('styles')
@@ -312,7 +250,6 @@
             justify-content: space-between;
             margin: 20px 0;
             position: relative;
-            overflow: hidden;
         }
 
         .progress-tracker::before {
@@ -331,7 +268,6 @@
             position: relative;
             z-index: 2;
             flex: 1;
-            padding: 0 5px;
         }
 
         .step-icon {
@@ -344,9 +280,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             color: #a0a0a0;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
 
         .step.completed .step-icon {
@@ -363,24 +299,21 @@
 
         .step-label {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             color: #333;
         }
 
         .step-date {
-            font-size: 12px;
+            font-size: 11px;
             color: #6c757d;
-            margin-top: 5px;
         }
 
-        .card-header h5 i {
-            vertical-align: middle;
-            margin-right: 8px;
+        .italic {
+            font-style: italic;
         }
 
-        .modal-body img {
-            max-width: 100%;
-            height: auto;
+        .x-small {
+            font-size: 10px;
         }
     </style>
 @endpush

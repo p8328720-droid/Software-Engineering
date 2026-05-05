@@ -8,12 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('report_statuses', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('report_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('status', ['pending', 'verified', 'in_progress', 'completed', 'rejected']);
-            $table->text('description')->nullable();
+            $table->text('comment');
             $table->timestamps();
             
             $table->index('report_id');
@@ -22,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('report_statuses');
+        Schema::dropIfExists('comments');
     }
 };

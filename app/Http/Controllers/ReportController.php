@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Report;
-use App\Models\Facility;
+use App\Models\Room;
+use App\Models\Sla; // Menggunakan Sla (Case sensitive sesuai standard Laravel)
+use App\Models\User;
 use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,193 +20,153 @@ class ReportController extends Controller
         $this->reportService = $reportService;
     }
 
+    /**
+     * Menampilkan daftar laporan berdasarkan role.
+     */
     public function index()
     {
         $user = Auth::user();
-        
-        if ($user->isPelapor()) {
-            $reports = Report::with('facility')
-                ->where('user_id', $user->id)
+        $query = Report::with(['room', 'sla']);
+
+        if ($user->role === 'pelapor') {
+            $reports = $query->where('reporter_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
             return view('pelapor.reports.index', compact('reports'));
         }
-        
-        // Add logic for other roles if they have an index view
-        abort(403);
+
+        // Untuk Admin & Teknisi bisa melihat semua laporan
+        $reports = $query->orderBy('created_at', 'desc')->paginate(10);
+        return view('admin.reports.index', compact('reports'));
     }
 
     public function create()
     {
-        if (!Auth::user()->isPelapor()) {
+        if (Auth::user()->role !== 'pelapor') {
             abort(403);
         }
+
+        $rooms = Room::all();
         
-        $facilities = Facility::where('is_active', true)->get();
-        return view('pelapor.reports.create', compact('facilities'));
+        // Ambil daftar kategori unik dari tabel SLA untuk dropdown di form
+        $categories = Sla::where('is_active', true)
+                        ->distinct()
+                        ->pluck('facility_category');
+
+        return view('pelapor.reports.create', compact('rooms', 'categories'));
     }
 
     public function store(Request $request)
     {
-        if (!Auth::user()->isPelapor()) {
-            abort(403);
-        }
-
         $request->validate([
             'title' => 'required|string|max:255',
-            'facility_id' => 'required|exists:facilities,id',
-            'location_detail' => 'required|string|max:255',
+            'room_id' => 'required|exists:rooms,id',
+            'facility_category' => 'required|string', 
             'urgency' => 'required|in:low,medium,high',
             'description' => 'required|string',
             'image' => 'nullable|image|max:2048',
         ]);
 
-        $facility = Facility::findOrFail($request->facility_id);
-        
-        $data = $request->all();
-        $data['user_id'] = Auth::id();
+        // 1. Cari rule SLA spesifik (Matrix Kategori + Urgensi)
+        $sla = Sla::where('facility_category', $request->facility_category)
+                  ->where('urgency', $request->urgency)
+                  ->firstOrFail();
+
+        // 2. Hitung Deadline via Service
+        $deadline = $this->reportService->calculateSLADeadline($request->facility_category, $request->urgency);
+
+        // 3. Mapping data untuk mass assignment
+        $data = $request->except(['image', 'facility_category']);
+        $data['reporter_id'] = Auth::id();
         $data['status'] = 'pending';
-        $data['sla_deadline'] = $this->reportService->calculateSLADeadline($facility, $request->urgency);
-        
+        $data['sla_id'] = $sla->id;
+        $data['sla_deadline'] = $deadline; // Tetap pakai sla_deadline sesuai request
+
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('reports', 'public');
-            $data['image_path'] = $path;
+            $data['image_path'] = $request->file('image')->store('reports', 'public');
         }
-        
+
         $report = Report::create($data);
-        
-        return redirect()->route('pelapor.reports.show', $report)
-            ->with('success', 'Laporan berhasil dikirim');
+
+        // 4. Catat riwayat awal
+        AuditLog::create([
+            'report_id' => $report->id,
+            'user_id' => Auth::id(),
+            'status_changed_to' => 'pending',
+            'notes' => "Laporan dibuat. Target resolusi: {$sla->resolution_hours} jam.",
+        ]);
+
+        return redirect()->route('pelapor.reports.show', $report->id)
+            ->with('success', 'Laporan berhasil dikirim dan masuk antrean.');
     }
 
     public function show($id)
     {
-        $user = Auth::user();
-        // Eager load statusHistory for the progress tracker and comments/user for comments section
-        $report = Report::with(['user', 'facility', 'comments.user', 'statusHistory'])
+        $report = Report::with(['reporter', 'room', 'sla', 'auditLogs.user', 'assignment.technician'])
             ->findOrFail($id);
-            
-        // Ensure pelapor can only view their own reports
-        if ($user->isPelapor() && $report->user_id !== $user->id) {
-            abort(403, 'Akses ditolak.');
+
+        // Security check untuk pelapor
+        if (Auth::user()->role === 'pelapor' && $report->reporter_id !== Auth::id()) {
+            abort(403);
         }
 
-        // Fetch all technicians for the modals
-        $technicians = \App\Models\User::where('role', 'teknisi')->get();
-            
-        // Render the unified reports view
+        $technicians = User::where('role', 'teknisi')->get();
+
         return view('reports.show', compact('report', 'technicians'));
-}
-    
+    }
+
     /**
-     * Verify a report and assign a technician.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Report  $report
-     * @return \Illuminate\Http\RedirectResponse
+     * Menugaskan teknisi ke laporan (Admin Only).
      */
-    public function verifyReport(Request $request, Report $report)
+    public function assignTechnician(Request $request, Report $report)
     {
-        // Ensure the user is an admin
-        if (!Auth::user()->isAdmin()) {
-            abort(403, 'Akses ditolak.');
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
         }
 
         $request->validate([
             'assignee_id' => 'required|exists:users,id',
-            'verification_notes' => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
-        // Update report status
-        $report->status = 'in_progress';
-        $report->save(); // Save the status update
+        // Update atau buat penugasan baru
+        $report->assignment()->updateOrCreate(
+            ['report_id' => $report->id],
+            [
+                'technician_id' => $request->assignee_id,
+                'assigned_by' => Auth::id(),
+                'assigned_at' => now(),
+                'notes' => $request->notes,
+            ]
+        );
 
-        // Create a new technician assignment record
-        $report->technicianAssignments()->create([
-            'technician_id' => $request->assignee_id,
-            'assigned_by' => Auth::id(),
-            'assigned_at' => now(),
+        // Ubah status laporan menjadi in_progress
+        // $report->update(['status' => 'in_progress']);
+
+        AuditLog::create([
+            'report_id' => $report->id,
+            'user_id' => Auth::id(),
+            'status_changed_to' => 'in_progress',
+            'notes' => $request->notes ?? 'Admin telah memverifikasi dan menugaskan teknisi.',
         ]);
 
-        // Add a status history entry
-        $report->statusHistory()->create([
-            'status' => 'in_progress',
-            'description' => $request->verification_notes ?? 'Laporan diverifikasi dan ditetapkan kepada teknisi.',
-            'user_id' => Auth::id(), // The admin performing the verification
-        ]);
-
-        return redirect()->route('admin.reports.index') // Assuming an admin reports index exists, or redirect back
-            ->with('success', 'Laporan berhasil diverifikasi dan ditetapkan.');
+        return redirect()->back()->with('success', 'Teknisi berhasil ditugaskan.');
     }
 
     /**
-     * Store a new comment for a report.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Report  $report
-     * @return \Illuminate\Http\RedirectResponse
+     * Menyimpan komentar/catatan tambahan ke Audit Log.
      */
     public function storeComment(Request $request, Report $report)
     {
-        $request->validate([
-            'comment' => 'required|string|max:1000',
-        ]);
+        $request->validate(['comment' => 'required|string|max:1000']);
 
-        // Create the comment, associating it with the report and the authenticated user
-        $report->comments()->create([
+        AuditLog::create([
+            'report_id' => $report->id,
             'user_id' => Auth::id(),
-            'comment' => $request->comment,
+            'status_changed_to' => $report->status, // Status tidak berubah, hanya nambah catatan
+            'notes' => $request->comment,
         ]);
 
-        return redirect()->back()->with('success', 'Komentar berhasil ditambahkan.');
-    }
-
-    /**
-     * Forward a report to another technician.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Report  $report
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function forwardReport(Request $request, Report $report)
-    {
-        // Ensure the user is an admin
-        if (!Auth::user()->isAdmin()) {
-            abort(403, 'Akses ditolak.');
-        }
-
-        $request->validate([
-            'assignee_id' => 'required|exists:users,id',
-            'forwarding_notes' => 'nullable|string|max:1000',
-        ]);
-
-        // Create a new technician assignment record
-        $report->technicianAssignments()->create([
-            'technician_id' => $request->assignee_id,
-            'assigned_by' => Auth::id(),
-            'assigned_at' => now(),
-        ]);
-
-        // Add a status history entry
-        $report->statusHistory()->create([
-            'status' => $report->status, // Use the current status or a new one if defined
-            'description' => $request->forwarding_notes ?? 'Laporan diteruskan kepada teknisi lain.',
-            'user_id' => Auth::id(), // The admin performing the forwarding
-        ]);
-
-        return redirect()->route('admin.reports.index') // Assuming an admin reports index exists, or redirect back
-            ->with('success', 'Laporan berhasil diteruskan.');
-    }
-
-    /**
-     * Display a listing of reports for admin.
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function adminIndex()
-    {
-        // This method will list all reports for admin, potentially with filtering
-        // For now, let's redirect to dashboard as a placeholder
-        return redirect()->route('admin.dashboard')->with('info', 'Admin reports index is not yet implemented.');
+        return redirect()->back()->with('success', 'Catatan berhasil ditambahkan.');
     }
 }
