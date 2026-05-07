@@ -3,84 +3,101 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Room; // Pastikan model sudah Room
-use App\Models\Report;
+use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class RoomController extends Controller
 {
     public function index()
     {
-        // Eager load count laporan yang masih pending/in_progress
-        $rooms = Room::withCount(['reports' => function($q) {
-            $q->whereIn('status', ['pending', 'in_progress']);
-        }])->orderBy('name')->paginate(10);
+        $hasRoomId = Schema::hasColumn('reports', 'room_id');
         
-        $stats = [
-            'total' => Room::count(),
-            // Hitung ruangan yang punya minimal 1 laporan aktif
-            'room_with_reports' => Room::whereHas('reports', function($q) {
+        if (!$hasRoomId) {
+            $rooms = Room::orderBy('name')->paginate(10);
+            $stats = [
+                'total' => Room::count(),
+                'room_with_reports' => 0,
+            ];
+            
+            return view('admin.rooms.index', compact('rooms', 'stats'))
+                ->with('warning', 'Report counts are not available yet. Please run migrations to add room_id column.');
+        }
+        
+        try {
+            $rooms = Room::withCount(['reports' => function($q) {
                 $q->whereIn('status', ['pending', 'in_progress']);
-            })->count(),
-        ];
-        
-        return view('admin.rooms.index', compact('rooms', 'stats'));
+            }])->orderBy('name')->paginate(10);
+            
+            $stats = [
+                'total' => Room::count(),
+                'room_with_reports' => Room::whereHas('reports', function($q) {
+                    $q->whereIn('status', ['pending', 'in_progress']);
+                })->count(),
+            ];
+            
+            return view('admin.rooms.index', compact('rooms', 'stats'));
+        } catch (\Exception $e) {
+            $rooms = Room::orderBy('name')->paginate(10);
+            $stats = [
+                'total' => Room::count(),
+                'room_with_reports' => 0,
+            ];
+            
+            return view('admin.rooms.index', compact('rooms', 'stats'))
+                ->with('error', 'Unable to load report counts: ' . $e->getMessage());
+        }
     }
-
+    
     public function create()
     {
         return view('admin.rooms.create');
     }
-
+    
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:rooms,name',
-            'location' => 'nullable|string|max:255',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|unique:rooms',
+            'building' => 'nullable|string',
+            'floor' => 'nullable|integer',
+            'capacity' => 'nullable|integer',
             'description' => 'nullable|string',
         ]);
-
-        Room::create($request->only(['name', 'location', 'description']));
-
+        
+        Room::create($validated);
+        
         return redirect()->route('admin.rooms.index')
-            ->with('success', 'Ruangan berhasil ditambahkan ke sistem');
+            ->with('success', 'Room created successfully.');
     }
-
-    public function edit($id)
+    
+    public function edit(Room $room)
     {
-        $room = Room::findOrFail($id);
         return view('admin.rooms.edit', compact('room'));
     }
-
-    public function update(Request $request, $id)
+    
+    public function update(Request $request, Room $room)
     {
-        $room = Room::findOrFail($id);
-        
-        $request->validate([
-            'name' => 'required|string|max:255|unique:rooms,name,'.$id,
-            'location' => 'nullable|string|max:255',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|unique:rooms,code,' . $room->id,
+            'building' => 'nullable|string',
+            'floor' => 'nullable|integer',
+            'capacity' => 'nullable|integer',
             'description' => 'nullable|string',
         ]);
-
-        $room->update($request->only(['name', 'location', 'description']));
-
+        
+        $room->update($validated);
+        
         return redirect()->route('admin.rooms.index')
-            ->with('success', 'Informasi ruangan berhasil diperbarui');
+            ->with('success', 'Room updated successfully.');
     }
-
-    public function destroy($id)
+    
+    public function destroy(Room $room)
     {
-        $room = Room::findOrFail($id);
-        
-        // Cek apakah ada laporan (transaksi) di ruangan ini
-        if ($room->reports()->count() > 0) {
-            return redirect()->route('admin.rooms.index')
-                ->with('error', 'Gagal menghapus! Ruangan ini memiliki riwayat laporan kerusakan.');
-        }
-        
         $room->delete();
         
         return redirect()->route('admin.rooms.index')
-            ->with('success', 'Ruangan berhasil dihapus dari sistem');
+            ->with('success', 'Room deleted successfully.');
     }
 }

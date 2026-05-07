@@ -9,14 +9,16 @@ class Room extends Model
 {
     use HasFactory;
 
-    // Mengizinkan mass-assignment untuk nama ruangan
     protected $fillable = [
         'name',
+        'code',
+        'building',
+        'floor',
+        'capacity',
+        'description',
+        'is_active'
     ];
 
-    /**
-     * Relasi: Satu ruangan bisa memiliki banyak laporan kerusakan.
-     */
     public function reports()
     {
         return $this->hasMany(Report::class);

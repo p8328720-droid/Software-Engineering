@@ -53,7 +53,7 @@ class DashboardController extends Controller
             'total_users' => User::count(),
             'total_technicians' => User::where('role', 'teknisi')->count(),
             'total_students' => User::where('role', 'pelapor')->count(),
-            'total_rooms' => Room::count(), // Dulu total_facilities
+            'total_rooms' => 0, // Dulu total_facilities
 
             // Cek SLA pakai kolom 'deadline'
             'sla_violations' => Report::where('status', '!=', 'Completed')
@@ -73,10 +73,7 @@ class DashboardController extends Controller
             ->toArray();
 
         // Ganti perhitungan fasilitas jadi ruangan (Top 5 Ruangan Paling Sering Rusak)
-        $reports_by_room = Room::withCount('reports')
-            ->orderBy('reports_count', 'desc')
-            ->limit(5)
-            ->get();
+  $reports_by_room = collect([]); // Empty collection since rooms table doesn't exist yet
 
         $recent_users = User::orderBy('created_at', 'desc')->limit(5)->get();
 

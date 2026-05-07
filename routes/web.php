@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\EscalationController;
 
 // Halaman utama redirect ke login
 Route::get('/', function () {
@@ -25,6 +26,13 @@ Route::middleware(['auth'])->group(function () {
 
     // Route for submitting comments on reports
     Route::post('/reports/{report}/comments', [ReportController::class, 'storeComment'])->name('reports.comments.store');
+});
+
+// Escalation routes (protected by auth)
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/escalation', [EscalationController::class, 'index'])->name('admin.escalation.index');
+    Route::post('/escalation/{report}/escalate', [EscalationController::class, 'escalate'])->name('admin.escalation.escalate');
+    Route::post('/escalation/{report}/ignore', [EscalationController::class, 'ignore'])->name('admin.escalation.ignore');
 });
 
 // Include route files

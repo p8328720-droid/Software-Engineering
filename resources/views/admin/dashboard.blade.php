@@ -185,11 +185,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($recent_reports as $report)
-                            <tr>
-                                <td class="ps-3 fw-bold text-dark">#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
-                                <td class="small">{{ $report->reporter->name }}</td>
-                                <td class="small">{{ $report->room->name }}</td>
+                       @forelse($recent_reports as $report)
+<tr>
+    <td class="ps-3 fw-bold text-dark">#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
+    <td class="small">{{ $report->reporter->name ?? 'N/A' }}</td>
+    <td class="small">{{ $report->room->name ?? 'N/A' }}</td>
                                 <td class="text-center"><x-report-status :status="$report->status" /></td>
                                 <td class="text-center small">
                                     @if($report->sla_deadline < now() && $report->status != 'completed')
