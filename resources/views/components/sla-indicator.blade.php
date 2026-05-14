@@ -1,0 +1,15 @@
+@props(['deadline' => null, 'percentage' => null, 'size' => 'md', 'showLabel' => true])
+
+@php
+if($deadline && !$percentage){ $deadlineTime = \Carbon\Carbon::parse($deadline); $now = \Carbon\Carbon::now(); if($now->greaterThan($deadlineTime)){ $percentage = 100; } else { $totalSeconds = $deadlineTime->diffInSeconds($deadlineTime->copy()->subHours(48)); $elapsedSeconds = $now->diffInSeconds($deadlineTime->copy()->subHours(48)); $percentage = min(100, max(0, ($elapsedSeconds / $totalSeconds) * 100)); } }
+$percentage = $percentage ?? 0;
+$color = $percentage >= 80 ? '#dc3545' : ($percentage >= 50 ? '#ffc107' : '#28a745');
+$statusText = $percentage >= 80 ? 'Kritis' : ($percentage >= 50 ? 'Perhatian' : 'Aman');
+$sizes = ['sm' => ['container'=>'width:60px;height:60px;','font'=>'12px','radius'=>28], 'md' => ['container'=>'width:80px;height:80px;','font'=>'14px','radius'=>38], 'lg' => ['container'=>'width:100px;height:100px;','font'=>'18px','radius'=>48]];
+$cfg = $sizes[$size] ?? $sizes['md'];
+$circumference = 2 * pi() * $cfg['radius'];
+$offset = $circumference - ($percentage / 100) * $circumference;
+$remainingText = ''; if($deadline){ $now = \Carbon\Carbon::now(); $dl = \Carbon\Carbon::parse($deadline); if($now->greaterThan($dl)){ $remainingText = 'Terlambat'; } else { $hours = $dl->diffInHours($now); $remainingText = $hours > 24 ? floor($hours/24).' hari' : ($hours > 0 ? $hours.' jam' : $dl->diffInMinutes($now).' menit'); } }
+@endphp
+
+<div class="sla-indicator text-center d-inline-block"><div class="position-relative d-inline-block" style="{{ $cfg['container'] }}"><svg width="100%" height="100%" viewBox="0 0 {{ $cfg['radius']*2+4 }} {{ $cfg['radius']*2+4 }}"><circle cx="{{ $cfg['radius']+2 }}" cy="{{ $cfg['radius']+2 }}" r="{{ $cfg['radius'] }}" fill="none" stroke="#e9ecef" stroke-width="4"/><circle cx="{{ $cfg['radius']+2 }}" cy="{{ $cfg['radius']+2 }}" r="{{ $cfg['radius'] }}" fill="none" stroke="url(#gradient)" stroke-width="4" stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $offset }}" transform="rotate(-90 {{ $cfg['radius']+2 }} {{ $cfg['radius']+2 }})" stroke-linecap="round"/><defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="{{ $color }}"/><stop offset="100%" stop-color="{{ $color }}" stop-opacity="0.7"/></linearGradient></defs></svg><div class="position-absolute top-50 start-50 translate-middle text-center"><h4 class="mb-0" style="font-size:{{ $cfg['font'] }};font-weight:bold;color:{{ $color }}">{{ round($percentage) }}<span style="font-size:{{ round(intval($cfg['font'])*0.6) }}px">%</span></h4></div></div>@if($showLabel)<div class="mt-2">@if($remainingText)<div class="d-flex align-items-center justify-content-center gap-1"><i class="fas fa-clock" style="color:{{ $color }};font-size:12px"></i><small class="text-muted">Sisa: {{ $remainingText }}</small></div>@endif<span class="badge mt-1" style="background:{{ $color }};color:white;font-size:10px"><i class="fas fa-chart-line me-1"></i>{{ $statusText }}</span></div>@endif</div>
