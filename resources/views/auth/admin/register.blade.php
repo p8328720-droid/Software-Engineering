@@ -1,112 +1,168 @@
-<?php
+@extends('layouts.auth')
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\StatusController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\Teknisi\TaskController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\FacilityController;
-use App\Http\Controllers\Admin\AuditController;
-use App\Http\Controllers\Admin\ReportController as AdminReportController;
+@section('title', 'Daftar Admin')
 
-// ========== LANDING PAGE ==========
-Route::get('/', function () {
-    return view('landing');
-})->name('landing');
+@section('content')
+<div class="container">
+    <div class="row justify-content-center min-vh-100 align-items-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0">
+                <div class="card-header text-center bg-gradient-orange text-white border-0">
+                    <i class="fas fa-user-cog fa-2x mb-2"></i>
+                    <h4 class="mb-0">Daftar Akun Admin</h4>
+                    <p class="mb-0 mt-2 opacity-75">Registrasi administrator baru</p>
+                </div>
+                <div class="card-body p-4">
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i> Terjadi kesalahan:
+                            <ul class="mb-0 mt-2">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
-// ========== GLOBAL LOGIN REDIRECT ==========
-Route::get('/login', function () {
-    return redirect()->route('mahasiswa.login');
-})->name('login');
+                    <form method="POST" action="{{ route('admin.register') }}">
+                        @csrf
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                <i class="fas fa-user me-2 text-orange"></i>Nama Lengkap <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="name" 
+                                   id="name" 
+                                   class="form-control @error('name') is-invalid @enderror" 
+                                   value="{{ old('name') }}" 
+                                   placeholder="Masukkan nama lengkap"
+                                   required 
+                                   autofocus>
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-2 text-orange"></i>Email <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" 
+                                   name="email" 
+                                   id="email" 
+                                   class="form-control @error('email') is-invalid @enderror" 
+                                   value="{{ old('email') }}" 
+                                   placeholder="admin@example.com"
+                                   required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">
+                                <i class="fas fa-phone me-2 text-orange"></i>No. Telepon <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="phone" 
+                                   id="phone" 
+                                   class="form-control @error('phone') is-invalid @enderror" 
+                                   value="{{ old('phone') }}" 
+                                   placeholder="08123456789"
+                                   required>
+                            @error('phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="division" class="form-label">
+                                <i class="fas fa-building me-2 text-orange"></i>Divisi
+                            </label>
+                            <select name="division" id="division" class="form-select @error('division') is-invalid @enderror">
+                                <option value="">Pilih Divisi</option>
+                                <option value="Fasilitas" {{ old('division') == 'Fasilitas' ? 'selected' : '' }}>Divisi Fasilitas</option>
+                                <option value="IT" {{ old('division') == 'IT' ? 'selected' : '' }}>Divisi IT</option>
+                                <option value="Akademik" {{ old('division') == 'Akademik' ? 'selected' : '' }}>Divisi Akademik</option>
+                                <option value="Keuangan" {{ old('division') == 'Keuangan' ? 'selected' : '' }}>Divisi Keuangan</option>
+                                <option value="Umum" {{ old('division') == 'Umum' ? 'selected' : '' }}>Divisi Umum</option>
+                            </select>
+                            @error('division')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-2 text-orange"></i>Password <span class="text-danger">*</span>
+                            </label>
+                            <input type="password" 
+                                   name="password" 
+                                   id="password" 
+                                   class="form-control @error('password') is-invalid @enderror" 
+                                   placeholder="Minimal 6 karakter"
+                                   required>
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password_confirmation" class="form-label">
+                                <i class="fas fa-check-circle me-2 text-orange"></i>Konfirmasi Password <span class="text-danger">*</span>
+                            </label>
+                            <input type="password" 
+                                   name="password_confirmation" 
+                                   id="password_confirmation" 
+                                   class="form-control" 
+                                   placeholder="Ulangi password"
+                                   required>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                Saya setuju dengan <a href="#" class="text-decoration-none">Syarat & Ketentuan</a> yang berlaku
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="fas fa-user-plus me-2"></i> Daftar sebagai Admin
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-2">
+                            Sudah punya akun? 
+                            <a href="{{ route('admin.login') }}" class="text-decoration-none fw-bold">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login di sini
+                            </a>
+                        </p>
+                        <a href="{{ route('landing') }}" class="btn btn-outline-secondary w-100 mt-2">
+                            <i class="fas fa-arrow-left me-2"></i> Kembali ke Portal Utama
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
 
-
-// ========== MAHASISWA ==========
-Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
-    Route::get('/login', [AuthController::class, 'showMahasiswaLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'mahasiswaLogin']);
-    Route::get('/register', [AuthController::class, 'showMahasiswaRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'mahasiswaRegister']);
-    
-    Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'mahasiswaDashboard'])->name('dashboard');
-        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-        Route::get('/reports/create', [ReportController::class, 'create'])->name('reports.create');
-        Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
-        Route::get('/reports/{report}', [ReportController::class, 'show'])->name('reports.show');
-        Route::post('/reports/{report}/rating', [ReportController::class, 'rating'])->name('reports.rating');
-        Route::post('/reports/{report}/comment', [ReportController::class, 'addComment'])->name('reports.comment');
-        Route::get('/tracking', [ReportController::class, 'tracking'])->name('tracking');
-        Route::get('/tracking/search', [ReportController::class, 'searchTracking'])->name('tracking.search');
-    });
-});
-
-
-// ========== TEKNISI ==========
-Route::prefix('teknisi')->name('teknisi.')->group(function () {
-    Route::get('/login', [AuthController::class, 'showTeknisiLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'teknisiLogin']);
-    Route::get('/register', [AuthController::class, 'showTeknisiRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'teknisiRegister']);
-    
-    Route::middleware(['auth', 'role:teknisi'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'teknisiDashboard'])->name('dashboard');
-        Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-        Route::get('/tasks/{report}', [TaskController::class, 'show'])->name('tasks.show');
-        Route::post('/reports/{report}/status', [StatusController::class, 'update'])->name('status.update');
-        Route::post('/reports/{report}/comment', [ReportController::class, 'addComment'])->name('reports.comment');
-    });
-});
-
-
-// ========== ADMIN ==========
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/login', [AuthController::class, 'showAdminLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'adminLogin']);
-    Route::get('/register', [AuthController::class, 'showAdminRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'adminRegister']);
-    
-    Route::middleware(['auth', 'role:admin'])->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        
-        Route::get('/users', [UserController::class, 'index'])->name('users');
-        Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-        Route::post('/users', [UserController::class, 'store'])->name('users.store');
-        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-        
-        Route::get('/facilities', [FacilityController::class, 'index'])->name('facilities');
-        Route::get('/facilities/create', [FacilityController::class, 'create'])->name('facilities.create');
-        Route::post('/facilities', [FacilityController::class, 'store'])->name('facilities.store');
-        Route::get('/facilities/{facility}/edit', [FacilityController::class, 'edit'])->name('facilities.edit');
-        Route::put('/facilities/{facility}', [FacilityController::class, 'update'])->name('facilities.update');
-        Route::delete('/facilities/{facility}', [FacilityController::class, 'destroy'])->name('facilities.destroy');
-        
-        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
-        Route::get('/reports/{id}/edit', [AdminReportController::class, 'edit'])->name('reports.edit');
-        Route::put('/reports/{id}', [AdminReportController::class, 'update'])->name('reports.update');
-        Route::delete('/reports/{id}', [AdminReportController::class, 'destroy'])->name('reports.destroy');
-        Route::delete('/reports/{id}/rating', [AdminReportController::class, 'deleteRating'])->name('reports.delete-rating');
-        
-        Route::get('/audit', [AuditController::class, 'index'])->name('audit');
-    });
-});
-
-
-// ========== NOTIFICATIONS ==========
-Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->group(function () {
-    Route::get('/', [NotificationController::class, 'index'])->name('index');
-    Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('mark-read');
-    Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-    Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
-    Route::get('/latest', [NotificationController::class, 'getLatest'])->name('latest');
-    Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
-});
-
-
-// ========== LOGOUT ==========
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+@push('styles')
+<style>
+.text-orange {
+    color: #FF6B35;
+}
+.bg-gradient-orange {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+}
+.btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+}
+</style>
+@endpush
