@@ -26,7 +26,7 @@ class ReportController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $query = Report::with(['room', 'sla']);
+        $query = Report::with(['room', 'sla', 'reporter']);
 
         if ($user->role === 'pelapor') {
             $reports = $query->where('reporter_id', $user->id)
@@ -112,7 +112,7 @@ class ReportController extends Controller
 
         $technicians = User::where('role', 'teknisi')->get();
 
-        return view('reports.show', compact('report', 'technicians'));
+        return view('admin.reports.show', compact('report', 'technicians'));
     }
 
     /**

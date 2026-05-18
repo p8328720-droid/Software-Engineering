@@ -58,67 +58,7 @@
         <div class="row">
             {{-- KOLOM KIRI: DETAIL LAPORAN & FORM PENYELESAIAN --}}
             <div class="col-md-8">
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fs-6 fw-bold"><i class="fas fa-info-circle text-info me-2"></i>Informasi Kerusakan
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        {{-- ALERT TIMER SLA KHUSUS TEKNISI --}}
-                        @if($task->report->status !== 'completed')
-                            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-4">
-                                <i class="fas fa-hourglass-start fa-2x me-3"></i>
-                                <div>
-                                    <small class="d-block fw-bold text-uppercase">Sisa Waktu Pengerjaan (SLA):</small>
-                                    <span id="slaRemaining" class="fs-4 fw-bold">Menghitung...</span>
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Judul Masalah</label>
-                                <p class="mb-0 fw-medium fs-5 text-dark">{{ $task->report->title }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Ruangan / Lokasi</label>
-                                <p class="mb-0 fw-medium"><i class="fas fa-map-marker-alt text-danger me-1"></i>
-                                    {{ $task->report->room->name ?? '-' }}</p>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Kategori Kerusakan</label>
-                                <p class="mb-0"><span
-                                        class="badge bg-secondary">{{ $task->report->sla->facility_category ?? '-' }}</span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Tingkat Urgensi</label>
-                                <div class="mt-1">
-                                    @if($task->report->urgency == 'high') <span class="badge bg-danger px-3">HIGH /
-                                        EMERGENCY</span>
-                                    @elseif($task->report->urgency == 'medium') <span
-                                        class="badge bg-warning text-dark px-3">MEDIUM</span>
-                                    @else <span class="badge bg-info text-dark px-3">LOW</span> @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="text-muted small fw-bold text-uppercase">Deskripsi Laporan</label>
-                            <p class="bg-light p-3 rounded border mb-0 text-dark">{{ $task->report->description }}</p>
-                        </div>
-
-                        @if($task->report->image_path)
-                            <div class="mb-0">
-                                <label class="text-muted small fw-bold text-uppercase mb-2">Bukti Foto Kerusakan</label>
-                                <img src="{{ asset('storage/' . $task->report->image_path) }}"
-                                    class="img-fluid rounded border shadow-sm d-block" style="max-height: 400px;">
-                            </div>
-                        @endif
-                    </div>
-                </div>
+                <x-report-info-card :report="$task->report" />
 
                 {{-- FORM PENYELESAIAN TUGAS --}}
                 @if($task->report->status !== 'completed')
@@ -209,36 +149,8 @@
                     </div>
                 </div>
 
-                {{-- CARD RIWAYAT AUDIT LOG (SAMA DENGAN REPORTS.SHOW) --}}
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fs-6 fw-bold"><i class="fas fa-history text-secondary me-2"></i>Riwayat Aktivitas
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="list-group list-group-flush">
-                            @forelse($task->report->auditLogs as $log)
-                                <div class="list-group-item border-0 border-bottom py-3">
-                                    <div class="d-flex w-100 justify-content-between mb-1">
-                                        <small class="fw-bold text-primary">{{ $log->user?->name ?? 'System' }}</small>
-                                        <small class="text-muted small">{{ $log->created_at->diffForHumans() }}</small>
-                                    </div>
-                                    <p class="mb-1 small">
-                                        Status: <span
-                                            class="fw-bold text-capitalize text-dark">{{ str_replace('_', ' ', $log->status_changed_to) }}</span>
-                                    </p>
-                                    @if($log->notes)
-                                        <div class="bg-light p-2 rounded small mt-1 border-start border-3 border-info">
-                                            <em>"{{ $log->notes }}"</em>
-                                        </div>
-                                    @endif
-                                </div>
-                            @empty
-                                <div class="p-4 text-center text-muted small">Belum ada riwayat aktivitas.</div>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
+                {{-- CARD RIWAYAT AUDIT LOG --}}
+                <x-report-audit-log :logs="$task->report->auditLogs" />
             </div>
         </div>
     </div>

@@ -56,71 +56,7 @@
         <div class="row">
             {{-- KOLOM KIRI: DETAIL LAPORAN --}}
             <div class="col-md-8">
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0"><i class="fas fa-info-circle text-info me-2"></i>Detail Laporan</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Judul</label>
-                                <p class="mb-0 fw-medium">{{ $report->title }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Ruangan</label>
-                                <p class="mb-0">{{ $report->room->name ?? '-' }}</p>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Kategori</label>
-                                <p class="mb-0"><span class="badge bg-secondary">{{ $report->sla->facility_category ?? '-' }}</span>
-                                </p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="text-muted small fw-bold text-uppercase">Tingkat Urgensi</label>
-                                <div class="mt-1">
-                                    @if($report->urgency == 'high')
-                                        <span class="badge bg-danger">High / Emergency</span>
-                                    @elseif($report->urgency == 'medium')
-                                        <span class="badge bg-warning text-dark">Medium</span>
-                                    @else
-                                        <span class="badge bg-info text-dark">Low</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        @if(Auth::user()->role !== 'pelapor')
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <label class="text-muted small fw-bold text-uppercase">Pelapor</label>
-                                    <p class="mb-0">{{ $report->reporter->name ?? 'User' }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-muted small fw-bold text-uppercase">Teknisi Bertugas</label>
-                                    <p class="mb-0 fw-bold text-primary">
-                                        {{ $report->assignment->technician->name ?? 'Belum Ditugaskan' }}
-                                    </p>
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="mb-4">
-                            <label class="text-muted small fw-bold text-uppercase">Deskripsi Masalah</label>
-                            <p class="bg-light p-3 rounded border mb-0">{{ $report->description }}</p>
-                        </div>
-
-                        @if($report->image_path)
-                            <div class="mb-0">
-                                <label class="text-muted small fw-bold text-uppercase mb-2">Bukti Foto</label>
-                                <img src="{{ asset('storage/' . $report->image_path) }}"
-                                    class="img-fluid rounded border d-block" style="max-height: 400px; width: auto;">
-                            </div>
-                        @endif
-                    </div>
-                </div>
+                <x-report-info-card :report="$report" />
             </div>
 
             {{-- KOLOM KANAN: STATUS, RIWAYAT & AKSI --}}
@@ -152,35 +88,7 @@
                 </div>
 
                 {{-- RIWAYAT / AUDIT LOG --}}
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 small fw-bold"><i class="fas fa-history text-secondary me-2"></i>RIWAYAT & CATATAN
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="list-group list-group-flush">
-                            @forelse($report->auditLogs as $log)
-                                <div class="list-group-item border-0 border-bottom py-3">
-                                    <div class="d-flex w-100 justify-content-between mb-1">
-                                        <small class="fw-bold text-primary">{{ $log->user?->name ?? 'System' }}</small>
-                                        <small class="text-muted small">{{ $log->created_at->diffForHumans() }}</small>
-                                    </div>
-                                    <p class="mb-1 small">
-                                        Status: <span
-                                            class="fw-bold text-capitalize">{{ str_replace('_', ' ', $log->status_changed_to) }}</span>
-                                    </p>
-                                    @if($log->notes)
-                                        <div class="bg-light p-2 rounded small mt-1 border-start border-4 border-info">
-                                            <em>"{{ $log->notes }}"</em>
-                                        </div>
-                                    @endif
-                                </div>
-                            @empty
-                                <div class="p-4 text-center text-muted small">Belum ada riwayat aktivitas.</div>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
+                <x-report-audit-log :logs="$report->auditLogs" />
 
                 {{-- ADMIN ACTIONS --}}
                 @if(Auth::user()->role === 'admin')

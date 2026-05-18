@@ -45,6 +45,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     // Reports Management
     Route::patch('/reports/{report}/assign', [ReportController::class, 'assignTechnician'])->name('reports.assign');
-    Route::get('/reports', [ReportController::class, 'adminIndex'])->name('reports.index');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/{id}', [ReportController::class, 'show'])->name('reports.show');
 });
