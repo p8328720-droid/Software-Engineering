@@ -9,9 +9,7 @@
             <h1 class="h4 fw-bold text-dark">
                 <i class="fas fa-edit text-orange me-2"></i>Edit Data Ruangan
             </h1>
-            <a href="{{ route('admin.rooms.index') }}" class="btn btn-light btn-sm border fw-bold small-caps px-3">
-                <i class="fas fa-arrow-left me-1"></i> Kembali
-            </a>
+            <a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary fw-bold">Kembali</a>
         </div>
 
         {{-- FORM CARD --}}
@@ -63,10 +61,10 @@
 
                     {{-- ACTION BUTTONS --}}
                     <div class="pt-3 border-top d-flex gap-2">
-                        <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
-                            <i class="fas fa-save me-2"></i> SIMPAN PERUBAHAN
+                        <button type="submit" class="btn btn-primary fw-bold shadow-sm">
+                            Simpan Perubahan
                         </button>
-                        <a href="{{ route('admin.rooms.index') }}" class="btn btn-light border px-4">BATAL</a>
+                        <a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary fw-bold">Batal</a>
                     </div>
                 </form>
             </div>

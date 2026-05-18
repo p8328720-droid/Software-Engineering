@@ -7,50 +7,7 @@
 
         {{-- PROGRESS TRACKER --}}
         @if(Auth::user()->role === 'pelapor' || Auth::user()->role === 'teknisi')
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0"><i class="fas fa-tasks text-primary me-2"></i>Status Tracking Laporan</h5>
-                </div>
-                <div class="card-body py-4">
-                    @if($report->status === 'rejected')
-                        <div class="alert alert-danger text-center mb-0">
-                            <i class="fas fa-times-circle me-2"></i>Laporan ini telah ditolak.
-                        </div>
-                    @else
-                        @php
-                            // Sinkronisasi dengan lowercase enum
-                            $currentLevel = 1;
-                            if ($report->status === 'in_progress')
-                                $currentLevel = 2;
-                            if ($report->status === 'completed')
-                                $currentLevel = 3;
-                        @endphp
-
-                        <div class="progress-tracker">
-                            <div class="step {{ $currentLevel > 1 ? 'completed' : 'active' }}">
-                                <div class="step-icon"><i class="fas fa-{{ $currentLevel > 1 ? 'check' : 'clock' }}"></i></div>
-                                <div class="step-label">Menunggu Verifikasi</div>
-                                <div class="step-date">{{ $report->created_at->format('d M Y') }}</div>
-                            </div>
-
-                            <div class="step {{ $currentLevel > 2 ? 'completed' : ($currentLevel == 2 ? 'active' : '') }}">
-                                <div class="step-icon"><i
-                                        class="fas fa-{{ $currentLevel > 2 ? 'check' : ($currentLevel == 2 ? 'spinner fa-spin' : 'cog') }}"></i>
-                                </div>
-                                <div class="step-label">Dalam Proses</div>
-                                <div class="step-date">{{ $currentLevel >= 2 ? $report->updated_at->format('d M Y') : '-' }}</div>
-                            </div>
-
-                            <div class="step {{ $currentLevel == 3 ? 'completed' : '' }}">
-                                <div class="step-icon"><i class="fas fa-{{ $currentLevel == 3 ? 'check' : 'flag-checkered' }}"></i>
-                                </div>
-                                <div class="step-label">Selesai</div>
-                                <div class="step-date">{{ $currentLevel == 3 ? $report->updated_at->format('d M Y') : '-' }}</div>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
+            <x-report-progress :status="$report->status" />
         @endif
 
         <div class="row">
@@ -61,91 +18,9 @@
 
             {{-- KOLOM KANAN: STATUS, RIWAYAT & AKSI --}}
             <div class="col-md-4">
-                {{-- STATUS & DEADLINE --}}
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 small fw-bold"><i class="fas fa-clock text-info me-2"></i>STATUS & WAKTU</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3 pb-3 border-bottom">
-                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Status</label>
-                            @if($report->status == 'pending') <span class="badge bg-warning text-dark px-3">Pending</span>
-                            @elseif($report->status == 'in_progress') <span class="badge bg-info px-3">Diproses</span>
-                            @elseif($report->status == 'completed') <span class="badge bg-success px-3">Selesai</span>
-                            @elseif($report->status == 'rejected') <span class="badge bg-danger px-3">Ditolak</span>
-                            @endif
-                        </div>
-                        <div class="mb-3">
-                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Dilaporkan</label>
-                            <span class="fw-medium">{{ $report->created_at->format('d M Y, H:i') }}</span>
-                        </div>
-                        <div class="mb-0">
-                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Batas SLA (Deadline)</label>
-                            <span class="text-danger fw-bold"><i class="fas fa-hourglass-half me-1"></i>
-                                {{ $report->sla_deadline ? $report->sla_deadline->format('d M Y, H:i') : '-' }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- RIWAYAT / AUDIT LOG --}}
+                <x-report-status-card :report="$report" />
                 <x-report-audit-log :logs="$report->auditLogs" />
-
-                {{-- ADMIN ACTIONS --}}
-                @if(Auth::user()->role === 'admin')
-                    <div class="card border-0 shadow-sm mb-4 bg-light border-start border-4 border-danger">
-                        <div class="card-body">
-                            <h6 class="fw-bold mb-3 small"><i class="fas fa-user-shield me-2 text-danger"></i>KONTROL ADMIN</h6>
-
-                            @if($report->status !== 'completed' && $report->status !== 'rejected')
-                                <button type="button" class="btn btn-primary btn-sm w-100 shadow-sm" data-bs-toggle="modal"
-                                    data-bs-target="#assignTechnicianModal">
-                                    <i
-                                        class="fas fa-user-plus me-2"></i>{{ $report->status === 'pending' ? 'Verifikasi & Tugaskan' : 'Alihkan Teknisi' }}
-                                </button>
-                            @else
-                                <p class="text-muted small mb-0 text-center">Laporan sudah bersifat final.</p>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    {{-- MODAL PENUGASAN TEKNISI --}}
-    <div class="modal fade" id="assignTechnicianModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content border-0">
-                <form action="{{ route('admin.reports.assign', $report->id) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-                    <div class="modal-header bg-primary text-white border-0">
-                        <h5 class="modal-title">Penugasan Teknisi</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body py-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Pilih Teknisi</label>
-                            <select class="form-select" name="assignee_id" required>
-                                <option value="">-- Pilih Teknisi --</option>
-                                @foreach($technicians as $technician)
-                                    <option value="{{ $technician->id }}" {{ ($report->assignment?->technician_id == $technician->id) ? 'selected' : '' }}>
-                                        {{ $technician->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-0">
-                            <label class="form-label fw-bold">Catatan Instruksi</label>
-                            <textarea class="form-control" name="notes" rows="3"
-                                placeholder="Berikan instruksi khusus untuk teknisi..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer bg-light border-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary px-4 shadow-sm">Simpan Penugasan</button>
-                    </div>
-                </form>
+                <x-report-admin-actions :report="$report" :technicians="$technicians" />
             </div>
         </div>
     </div>

@@ -3,6 +3,7 @@
 @section('title', 'Buat Laporan')
 
 @section('dashboard-content')
+<div class="container-fluid px-0">
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
             <h5 class="mb-0 fw-bold"><i class="fas fa-plus-circle text-orange me-2"></i>Buat Laporan Kerusakan Baru</h5>
@@ -23,7 +24,7 @@
 
                 {{-- Judul Laporan --}}
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Judul Laporan <span class="text-danger">*</span></label>
+                    <label class="form-label fw-bold small-caps">Judul Laporan <span class="text-danger">*</span></label>
                     <input type="text" name="title" class="form-control @error('title') is-invalid @enderror"
                         value="{{ old('title') }}" placeholder="Contoh: AC Rusak, Proyektor Mati" required>
                     @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -32,7 +33,7 @@
                 {{-- Baris 1: Ruangan & Kategori Fasilitas --}}
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Pilih Ruangan <span class="text-danger">*</span></label>
+                        <label class="form-label fw-bold small-caps">Pilih Ruangan <span class="text-danger">*</span></label>
                         <select name="room_id" class="form-select @error('room_id') is-invalid @enderror" required>
                             <option value="">-- Pilih Ruangan --</option>
                             @foreach($rooms as $room)
@@ -45,7 +46,7 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Kategori Fasilitas <span class="text-danger">*</span></label>
+                        <label class="form-label fw-bold small-caps">Kategori Fasilitas <span class="text-danger">*</span></label>
                         <select name="facility_category" class="form-select @error('facility_category') is-invalid @enderror" required>
                             <option value="">-- Pilih Kategori --</option>
                             @foreach($categories as $categoryName)
@@ -61,7 +62,7 @@
                 {{-- Baris 2: Urgensi & Bukti Foto --}}
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Tingkat Urgensi <span class="text-danger">*</span></label>
+                        <label class="form-label fw-bold small-caps">Tingkat Urgensi <span class="text-danger">*</span></label>
                         <select name="urgency" class="form-select @error('urgency') is-invalid @enderror" required>
                             <option value="low" {{ old('urgency') == 'low' ? 'selected' : '' }}>Low (Ringan)</option>
                             <option value="medium" {{ old('urgency') == 'medium' ? 'selected' : '' }}>Medium (Sedang)</option>
@@ -71,7 +72,7 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Bukti Foto (Opsional)</label>
+                        <label class="form-label fw-bold small-caps">Bukti Foto (Opsional)</label>
                         <input type="file" name="image" class="form-control @error('image') is-invalid @enderror"
                             accept="image/*">
                         <small class="text-muted">Format: JPG, PNG, JPEG. Maks 2MB</small>
@@ -81,7 +82,7 @@
 
                 {{-- Deskripsi --}}
                 <div class="mb-4">
-                    <label class="form-label fw-bold">Deskripsi Masalah <span class="text-danger">*</span></label>
+                    <label class="form-label fw-bold small-caps">Deskripsi Masalah <span class="text-danger">*</span></label>
                     <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="5"
                         placeholder="Jelaskan detail kerusakannya..." required>{{ old('description') }}</textarea>
                     @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -97,12 +98,19 @@
 
                 {{-- Tombol Aksi --}}
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
-                        <i class="fas fa-paper-plane me-2"></i> Kirim Laporan
+                    <button type="submit" class="btn btn-primary fw-bold shadow-sm">
+                        Kirim Laporan
                     </button>
-                    <a href="{{ route('pelapor.reports.index') }}" class="btn btn-light px-4 border shadow-sm">Batal</a>
+                    <a href="{{ route('pelapor.reports.index') }}" class="btn btn-secondary fw-bold">Batal</a>
                 </div>
             </form>
         </div>
     </div>
+</div>
 @endsection
+
+@push('styles')
+<style>
+    .small-caps { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: #6c757d; }
+</style>
+@endpush

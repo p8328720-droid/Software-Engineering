@@ -166,94 +166,78 @@
     </div>
 
     {{-- 5. RECENT REPORTS TABLE --}}
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-0">
-            <h6 class="text-white mb-0 fw-bold small-caps"><i class="fas fa-list-alt text-orange me-2"></i>Laporan Terbaru</h6>
-            <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size: 11px;">LIHAT SEMUA</a>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th class="ps-3 py-3 small-caps">ID</th>
-                            <th class="py-3 small-caps">Pelapor</th>
-                            <th class="py-3 small-caps">Ruangan</th>
-                            <th class="py-3 small-caps text-center">Status</th>
-                            <th class="py-3 small-caps text-center">SLA</th>
-                            <th class="py-3 small-caps text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                       @forelse($recent_reports as $report)
-<tr>
-    <td class="ps-3 fw-bold text-dark">#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
-    <td class="small">{{ $report->reporter->name ?? 'N/A' }}</td>
-    <td class="small">{{ $report->room->name ?? 'N/A' }}</td>
-                                <td class="text-center"><x-report-status :status="$report->status" /></td>
-                                <td class="text-center small">
-                                    @if($report->sla_deadline < now() && $report->status != 'completed')
-                                        <span class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> Terlambat</span>
-                                    @else
-                                        <span class="text-success fw-bold"><i class="fas fa-check-circle"></i> On Track</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('admin.reports.show', $report->id) }}" class="btn btn-sm btn-light border p-1 px-2">
-                                        <i class="fas fa-eye small text-muted"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="6" class="text-center py-4 small text-muted">Belum ada laporan masuk.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <x-data-table>
+        <x-slot:header>
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold small-caps"><i class="fas fa-list-alt text-orange me-2"></i>Laporan Terbaru</h6>
+                <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size: 11px;">LIHAT SEMUA</a>
             </div>
-        </div>
-    </div>
+        </x-slot:header>
+        <x-slot:thead>
+            <th class="ps-3 py-3 small-caps">ID</th>
+            <th class="py-3 small-caps">Pelapor</th>
+            <th class="py-3 small-caps">Ruangan</th>
+            <th class="py-3 small-caps text-center">Status</th>
+            <th class="py-3 small-caps text-center">SLA</th>
+            <th class="py-3 small-caps text-center">Aksi</th>
+        </x-slot:thead>
+        @forelse($recent_reports as $report)
+            <tr>
+                <td class="ps-3 fw-bold text-dark">#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
+                <td class="small">{{ $report->reporter->name ?? 'N/A' }}</td>
+                <td class="small">{{ $report->room->name ?? 'N/A' }}</td>
+                <td class="text-center"><x-report-status :status="$report->status" /></td>
+                <td class="text-center small">
+                    @if($report->sla_deadline < now() && $report->status != 'completed')
+                        <span class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> Terlambat</span>
+                    @else
+                        <span class="text-success fw-bold"><i class="fas fa-check-circle"></i> On Track</span>
+                    @endif
+                </td>
+                <td class="text-center">
+                    <a href="{{ route('admin.reports.show', $report->id) }}" class="btn btn-sm btn-light border p-1 px-2">
+                        <i class="fas fa-eye small text-muted"></i>
+                    </a>
+                </td>
+            </tr>
+        @empty
+            <tr><td colspan="6" class="text-center py-4 small text-muted">Belum ada laporan masuk.</td></tr>
+        @endforelse
+    </x-data-table>
 
     {{-- 6. RECENT USERS TABLE --}}
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-0">
-            <h6 class="text-white mb-0 fw-bold small-caps"><i class="fas fa-users text-orange me-2"></i>User Terbaru</h6>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size: 11px;">KELOLA USER</a>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th class="ps-3 py-3 small-caps">Nama</th>
-                            <th class="py-3 small-caps">Role</th>
-                            <th class="py-3 small-caps">Tgl Daftar</th>
-                            <th class="py-3 small-caps text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($recent_users as $user)
-                            <tr>
-                                <td class="ps-3 small fw-bold">{{ $user->name }}</td>
-                                <td>
-                                    @if($user->role == 'admin')<span class="badge bg-danger p-1 px-2" style="font-size: 10px;">ADMIN</span>
-                                    @elseif($user->role == 'teknisi')<span class="badge bg-info p-1 px-2" style="font-size: 10px;">TEKNISI</span>
-                                    @else<span class="badge bg-success p-1 px-2" style="font-size: 10px;">PELAPOR</span>@endif
-                                </td>
-                                <td class="small">{{ $user->created_at->format('d/m/Y') }}</td>
-                                <td class="text-center">
-                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-light border p-1 px-2">
-                                        <i class="fas fa-edit small text-muted"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="4" class="text-center py-4 small text-muted">Belum ada user baru.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <x-data-table>
+        <x-slot:header>
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold small-caps"><i class="fas fa-users text-orange me-2"></i>User Terbaru</h6>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size: 11px;">KELOLA USER</a>
             </div>
-        </div>
-    </div>
+        </x-slot:header>
+        <x-slot:thead>
+            <th class="ps-3 py-3 small-caps">Nama</th>
+            <th class="py-3 small-caps">Role</th>
+            <th class="py-3 small-caps">Tgl Daftar</th>
+            <th class="py-3 small-caps text-center">Aksi</th>
+        </x-slot:thead>
+        @forelse($recent_users as $user)
+            <tr>
+                <td class="ps-3 small fw-bold">{{ $user->name }}</td>
+                <td>
+                    @if($user->role == 'admin')<span class="badge bg-danger p-1 px-2" style="font-size: 10px;">ADMIN</span>
+                    @elseif($user->role == 'teknisi')<span class="badge bg-info p-1 px-2" style="font-size: 10px;">TEKNISI</span>
+                    @else<span class="badge bg-success p-1 px-2" style="font-size: 10px;">PELAPOR</span>@endif
+                </td>
+                <td class="small">{{ $user->created_at->format('d/m/Y') }}</td>
+                <td class="text-center">
+                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-light border p-1 px-2">
+                        <i class="fas fa-edit small text-muted"></i>
+                    </a>
+                </td>
+            </tr>
+        @empty
+            <tr><td colspan="4" class="text-center py-4 small text-muted">Belum ada user baru.</td></tr>
+        @endforelse
+    </x-data-table>
 </div>
 @endsection
 

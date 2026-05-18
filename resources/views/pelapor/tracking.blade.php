@@ -3,54 +3,56 @@
 @section('title', 'Tracking Laporan')
 
 @section('dashboard-content')
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0"><i class="fas fa-search text-orange me-2"></i>Tracking Laporan</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6 mx-auto">
-                <div class="input-group mb-4">
-                    <input type="text" class="form-control" placeholder="Masukkan Nomor/ID Laporan" id="trackingCode">
-                    <button class="btn btn-primary" onclick="trackReport()">
-                        <i class="fas fa-search"></i> Lacak
-                    </button>
-                </div>
-            </div>
+<div class="container-fluid px-0">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-search text-orange me-2"></i>Tracking Laporan</h5>
         </div>
-
-        {{-- Loading State (Opsional, untuk UX yang lebih baik) --}}
-        <div id="loadingState" class="text-center py-5" style="display: none;">
-            <i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i>
-            <p>Mencari laporan...</p>
-        </div>
-
-        {{-- Hasil Tracking --}}
-        <div id="trackingResult" style="display: none;">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>Menampilkan hasil tracking untuk laporan: <strong id="reportCode"></strong>
-            </div>
-            
-            <div class="progress-tracker" id="progressTracker">
-                </div>
-            
-            <div class="card mt-4">
-                <div class="card-body" id="reportDetail">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <div class="input-group mb-4">
+                        <input type="text" class="form-control" placeholder="Masukkan Nomor/ID Laporan" id="trackingCode">
+                        <button class="btn btn-primary" onclick="trackReport()">
+                            <i class="fas fa-search"></i> Lacak
+                        </button>
                     </div>
+                </div>
             </div>
-        </div>
 
-        {{-- Tidak Ditemukan --}}
-        <div id="noResult" class="text-center py-5" style="display: none;">
-            <i class="fas fa-search fa-3x text-muted mb-3"></i>
-            <p>Laporan tidak ditemukan. Silakan periksa kembali nomor laporan Anda.</p>
-        </div>
+            {{-- Loading State (Opsional, untuk UX yang lebih baik) --}}
+            <div id="loadingState" class="text-center py-5" style="display: none;">
+                <i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+                <p>Mencari laporan...</p>
+            </div>
 
-        {{-- Pesan Default --}}
-        <div id="defaultMessage" class="text-center py-5">
-            <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
-            <p>Masukkan nomor laporan untuk melihat status terbaru</p>
-            <small class="text-muted">Contoh: 1, 2, 3 (ID laporan)</small>
+            {{-- Hasil Tracking --}}
+            <div id="trackingResult" style="display: none;">
+                <div class="alert alert-info border-0 shadow-sm">
+                    <i class="fas fa-info-circle me-2"></i>Menampilkan hasil tracking untuk laporan: <strong id="reportCode"></strong>
+                </div>
+                
+                <div class="progress-tracker" id="progressTracker">
+                    </div>
+                
+                <div class="card mt-4 border-0 shadow-sm">
+                    <div class="card-body" id="reportDetail">
+                        </div>
+                </div>
+            </div>
+
+            {{-- Tidak Ditemukan --}}
+            <div id="noResult" class="text-center py-5" style="display: none;">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <p>Laporan tidak ditemukan. Silakan periksa kembali nomor laporan Anda.</p>
+            </div>
+
+            {{-- Pesan Default --}}
+            <div id="defaultMessage" class="text-center py-5">
+                <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                <p>Masukkan nomor laporan untuk melihat status terbaru</p>
+                <small class="text-muted">Contoh: 1, 2, 3 (ID laporan)</small>
+            </div>
         </div>
     </div>
 </div>

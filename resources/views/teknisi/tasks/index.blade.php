@@ -26,135 +26,105 @@
     <div class="tab-content" id="taskTabContent">
         {{-- SECTION TUGAS AKTIF --}}
         <div class="tab-pane fade show active" id="active">
-            <div class="card border-0 shadow-sm">
-                {{-- TABLE HEADER --}}
-                <div class="card-header bg-white py-3 border-0">
+            <x-data-table>
+                <x-slot:header>
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold">
                             <i class="fas fa-tools text-orange me-2"></i>Antrean Tugas Perbaikan
                         </h6>
                     </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="ps-3 py-3 small-caps">No. Laporan</th>
-                                    <th class="py-3 small-caps">Masalah & Kategori</th>
-                                    <th class="py-3 small-caps">Lokasi</th>
-                                    <th class="py-3 small-caps text-center">Urgensi</th>
-                                    <th class="py-3 small-caps">SLA Deadline</th>
-                                    <th class="py-3 small-caps text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($activeTasks as $task)
-                                    <tr>
-                                        <td class="ps-3 fw-bold text-primary">#{{ str_pad($task->report_id, 5, '0', STR_PAD_LEFT) }}</td>
-                                        <td>
-                                            <div class="fw-bold small">{{ $task->report->title }}</div>
-                                            <small class="text-muted" style="font-size: 11px;">{{ $task->report->sla->facility_category ?? '-' }}</small>
-                                        </td>
-                                        <td class="small">
-                                            <i class="fas fa-map-marker-alt text-danger me-1"></i>
-                                            {{ $task->report->room->name ?? 'N/A' }}
-                                        </td>
-                                        <td class="text-center">
-                                            @if($task->report->urgency == 'high')
-                                                <span class="badge bg-danger px-3 py-1 fw-bold" style="font-size: 10px;">HIGH</span>
-                                            @elseif($task->report->urgency == 'medium')
-                                                <span class="badge bg-warning text-dark px-3 py-1 fw-bold" style="font-size: 10px;">MEDIUM</span>
-                                            @else
-                                                <span class="badge bg-info text-dark px-3 py-1 fw-bold" style="font-size: 10px;">LOW</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="small fw-bold {{ $task->report->sla_deadline->isPast() ? 'text-danger' : '' }}">
-                                                {{ $task->report->sla_deadline->format('d/m/Y H:i') }}
-                                            </div>
-                                            <small class="text-muted" style="font-size: 10px;">{{ $task->report->sla_deadline->diffForHumans() }}</small>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="{{ route('teknisi.tasks.show', $task->id) }}" class="btn btn-sm btn-primary px-3 shadow-sm fw-bold">
-                                                Kerjakan
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-5">
-                                            <div class="py-3">
-                                                <i class="fas fa-check-circle fa-3x text-light mb-3"></i>
-                                                <p class="text-muted mb-0">Tidak ada tugas aktif. Semua pekerjaan sudah aman!</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                </x-slot:header>
+                <x-slot:thead>
+                    <th class="ps-3 py-3 small-caps">No. Laporan</th>
+                    <th class="py-3 small-caps">Masalah & Kategori</th>
+                    <th class="py-3 small-caps">Lokasi</th>
+                    <th class="py-3 small-caps text-center">Urgensi</th>
+                    <th class="py-3 small-caps">SLA Deadline</th>
+                    <th class="py-3 small-caps text-center">Aksi</th>
+                </x-slot:thead>
+                @forelse($activeTasks as $task)
+                    <tr>
+                        <td class="ps-3 fw-bold text-primary">#{{ str_pad($task->report_id, 5, '0', STR_PAD_LEFT) }}</td>
+                        <td>
+                            <div class="fw-bold small">{{ $task->report->title }}</div>
+                            <small class="text-muted" style="font-size: 11px;">{{ $task->report->sla->facility_category ?? '-' }}</small>
+                        </td>
+                        <td class="small">
+                            {{ $task->report->room->name ?? 'N/A' }}
+                        </td>
+                        <td class="text-center">
+                            @if($task->report->urgency == 'high')
+                                <span class="badge bg-danger px-3 py-1 fw-bold" style="font-size: 10px;">HIGH</span>
+                            @elseif($task->report->urgency == 'medium')
+                                <span class="badge bg-warning text-dark px-3 py-1 fw-bold" style="font-size: 10px;">MEDIUM</span>
+                            @else
+                                <span class="badge bg-info text-dark px-3 py-1 fw-bold" style="font-size: 10px;">LOW</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="small fw-bold {{ $task->report->sla_deadline->isPast() ? 'text-danger' : '' }}">
+                                {{ $task->report->sla_deadline->format('d/m/Y H:i') }}
+                            </div>
+                            <small class="text-muted" style="font-size: 10px;">{{ $task->report->sla_deadline->diffForHumans() }}</small>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route('teknisi.tasks.show', $task->id) }}" class="btn btn-sm btn-primary fw-bold shadow-sm">
+                                Kerjakan
+                            </a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted small">Tidak ada tugas aktif.</td>
+                    </tr>
+                @endforelse
+            </x-data-table>
         </div>
 
         {{-- SECTION TUGAS SELESAI --}}
         <div class="tab-pane fade" id="completed">
-            <div class="card border-0 shadow-sm">
-                {{-- TABLE HEADER --}}
-                <div class="card-header bg-white py-3 border-0">
+            <x-data-table>
+                <x-slot:header>
                     <h6 class="mb-0 fw-bold">
-                        <i class="fas fa-history text-success me-2"></i>Riwayat Pekerjaan Selesai
+                        Riwayat Pekerjaan Selesai
                     </h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="ps-3 py-3 small-caps">No. Laporan</th>
-                                    <th class="py-3 small-caps">Judul Laporan</th>
-                                    <th class="py-3 small-caps">Ruangan</th>
-                                    <th class="py-3 small-caps text-center">Status</th>
-                                    <th class="py-3 small-caps">Waktu Selesai</th>
-                                    <th class="py-3 small-caps text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($completedTasks as $task)
-                                    <tr>
-                                        <td class="ps-3">#{{ str_pad($task->report_id, 5, '0', STR_PAD_LEFT) }}</td>
-                                        <td>
-                                            <div class="fw-bold small">{{ $task->report->title }}</div>
-                                            <small class="text-muted" style="font-size: 11px;">{{ $task->report->sla->facility_category ?? '-' }}</small>
-                                        </td>
-                                        <td class="small">{{ $task->report->room->name ?? 'N/A' }}</td>
-                                        <td class="text-center">
-                                            <span class="badge bg-success-light text-success px-3 py-1 fw-bold" style="font-size: 10px;">COMPLETED</span>
-                                        </td>
-                                        <td class="small">
-                                            <div class="fw-bold text-dark">{{ $task->completed_at ? $task->completed_at->format('d M Y') : '-' }}</div>
-                                            <small class="text-muted">{{ $task->completed_at ? $task->completed_at->format('H:i') : '' }} WIB</small>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="{{ route('teknisi.tasks.show', $task->id) }}" class="btn btn-sm btn-outline-primary px-3 fw-bold">
-                                                Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-5 text-muted small">Belum ada riwayat tugas yang diselesaikan.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                </x-slot:header>
+                <x-slot:thead>
+                    <th class="ps-3 py-3 small-caps">No. Laporan</th>
+                    <th class="py-3 small-caps">Judul Laporan</th>
+                    <th class="py-3 small-caps">Ruangan</th>
+                    <th class="py-3 small-caps text-center">Status</th>
+                    <th class="py-3 small-caps">Waktu Selesai</th>
+                    <th class="py-3 small-caps text-center">Aksi</th>
+                </x-slot:thead>
+                @forelse($completedTasks as $task)
+                    <tr>
+                        <td class="ps-3">#{{ str_pad($task->report_id, 5, '0', STR_PAD_LEFT) }}</td>
+                        <td>
+                            <div class="fw-bold small">{{ $task->report->title }}</div>
+                            <small class="text-muted" style="font-size: 11px;">{{ $task->report->sla->facility_category ?? '-' }}</small>
+                        </td>
+                        <td class="small">{{ $task->report->room->name ?? 'N/A' }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-success-light text-success px-3 py-1 fw-bold" style="font-size: 10px;">COMPLETED</span>
+                        </td>
+                        <td class="small">
+                            <div class="fw-bold text-dark">{{ $task->completed_at ? $task->completed_at->format('d M Y') : '-' }}</div>
+                            <small class="text-muted">{{ $task->completed_at ? $task->completed_at->format('H:i') : '' }} WIB</small>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ route('teknisi.tasks.show', $task->id) }}" class="btn btn-sm btn-light border p-1 px-2 fw-bold">
+                                Detail
+                            </a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted small">Belum ada riwayat tugas yang diselesaikan.</td>
+                    </tr>
+                @endforelse
+            </x-data-table>
         </div>
-    </div>
-</div>
 @endsection
 
 @push('styles')

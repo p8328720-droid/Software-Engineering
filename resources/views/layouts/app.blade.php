@@ -28,6 +28,8 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            line-height: 1.6;
+            color: #333;
         }
         
         .navbar {

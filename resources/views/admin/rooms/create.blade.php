@@ -6,9 +6,7 @@
     <div class="container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
             <h1 class="h4 fw-bold text-dark"><i class="fas fa-plus-circle text-orange me-2"></i>Tambah Ruangan Baru</h1>
-            <a href="{{ route('admin.rooms.index') }}" class="btn btn-light btn-sm border fw-bold small-caps px-3">
-                <i class="fas fa-arrow-left me-1"></i> Kembali
-            </a>
+            <a href="{{ route('admin.rooms.index') }}" class="btn btn-sm btn-light border p-1 px-2">Kembali</a>
         </div>
 
         <div class="card border-0 shadow-sm">
@@ -38,10 +36,10 @@
                     </div>
 
                     <div class="pt-3 border-top d-flex gap-2">
-                        <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
-                            <i class="fas fa-save me-2"></i> SIMPAN RUANGAN
+                        <button type="submit" class="btn btn-primary fw-bold shadow-sm">
+                            Simpan
                         </button>
-                        <a href="{{ route('admin.rooms.index') }}" class="btn btn-light border px-4">BATAL</a>
+                        <a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary fw-bold">Batal</a>
                     </div>
                 </form>
             </div>

@@ -104,13 +104,7 @@
                     <div class="card-body">
                         <div class="mb-3 pb-3 border-bottom">
                             <label class="text-muted small fw-bold text-uppercase d-block mb-1">Status Laporan</label>
-                            @if($task->report->status == 'pending') <span
-                                class="badge bg-warning text-dark px-3 w-100">Pending</span>
-                            @elseif($task->report->status == 'in_progress') <span
-                                class="badge bg-info px-3 w-100">Diproses</span>
-                            @elseif($task->report->status == 'completed') <span
-                                class="badge bg-success px-3 w-100">Selesai</span>
-                            @endif
+                            <x-report-status :status="$task->report->status" />
                         </div>
                         <div class="mb-3">
                             <label class="text-muted small fw-bold text-uppercase d-block mb-1">Target Selesai
