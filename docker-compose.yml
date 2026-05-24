@@ -7,11 +7,6 @@ services:
       MYSQL_PORT: 3306
     networks:
       - laravel
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 3s
-      timeout: 2s
-      retries: 10
 
   migration_runner:
     build: .
@@ -23,8 +18,7 @@ services:
       - DB_USERNAME=root
       - DB_PASSWORD=password
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     entrypoint: ["sh", "-c", "php artisan migrate:fresh --force --seed"]
     networks:
       - laravel
