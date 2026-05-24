@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# 1. Pastikan file .env tersedia
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache 2>/dev/null
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache 2>/dev/null
 if [ ! -f .env ]; then
+
     cp .env.example .env
 fi
 
-# 2. Amankan APP_KEY jika belum tergenerasi
 if ! grep -q "APP_KEY=base64" .env; then
     php artisan key:generate
 fi
