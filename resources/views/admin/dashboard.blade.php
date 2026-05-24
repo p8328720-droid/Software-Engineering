@@ -1,290 +1,403 @@
-@extends('layouts.dashboard')
+@extends('layouts.admin')
 
 @section('title', 'Admin Dashboard')
 
-@section('dashboard-content')
-<div class="container-fluid px-0">
-    {{-- 1. WELCOME BANNER (IKUT STYLE TEKNISI) --}}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-gradient-orange text-white border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="fw-bold mb-1">Pusat Kendali Admin</h3>
-                            <p class="mb-0 opacity-75">Monitoring sistem SiRUKA secara real-time — {{ now()->format('d F Y') }}</p>
-                        </div>
-                        <div class="d-none d-md-block text-end">
-                            <i class="fas fa-tachometer-alt fa-4x opacity-50"></i>
-                        </div>
-                    </div>
+@section('admin-content')
+<div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+    <h1 class="h2">Dashboard Admin</h1>
+    <div>
+        <span class="text-muted">{{ now()->format('d F Y') }}</span>
+    </div>
+</div>
+
+<!-- Row 1: Stats Cards (4 kolom sama besar) -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h3 class="text-warning mb-0">{{ number_format($stats['pending_reports'] ?? 0) }}</h3>
+                <small class="text-muted">Pending</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h3 class="text-info mb-0">{{ number_format($stats['in_progress_reports'] ?? 0) }}</h3>
+                <small class="text-muted">Diproses</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h3 class="text-success mb-0">{{ number_format($stats['completed_reports'] ?? 0) }}</h3>
+                <small class="text-muted">Selesai</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h3 class="text-danger mb-0">{{ number_format($stats['rejected_reports'] ?? 0) }}</h3>
+                <small class="text-muted">Ditolak</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 2: Stats Cards (4 kolom sama besar) -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h3 class="text-primary mb-0">{{ number_format($stats['total_users'] ?? 0) }}</h3>
+                <small class="text-muted">Total User</small>
+                <div class="small text-muted mt-1">
+                    Mhs: {{ number_format($stats['total_students'] ?? 0) }} | Tek: {{ number_format($stats['total_technicians'] ?? 0) }}
                 </div>
             </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h3 class="text-success mb-0">{{ number_format($stats['total_facilities'] ?? 0) }}</h3>
+                <small class="text-muted">Total Ruangan</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h3 class="text-danger mb-0">{{ number_format($stats['sla_violations'] ?? 0) }}</h3>
+                <small class="text-muted">SLA Violation</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                @php
+                    $totalCompleted = $stats['completed_reports'] ?? 0;
+                    $slaViolations = $stats['sla_violations'] ?? 0;
+                    $compliance = $totalCompleted > 0 ? round((($totalCompleted - $slaViolations) / $totalCompleted) * 100) : 100;
+                @endphp
+                <h3 class="text-info mb-0">{{ $compliance }}<small>%</small></h3>
+                <small class="text-muted">Kepatuhan SLA</small>
+            </div>
+        </div>
+    </div>
+</div>
 
-    {{-- 2. STATS ROW 1: STATUS LAPORAN (IKUT STYLE TEKNISI) --}}
-    <div class="row mb-3">
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted small-caps mb-1">Total Laporan</p>
-                            <h2 class="fw-bold text-orange mb-0">{{ number_format($stats['total_reports']) }}</h2>
-                        </div>
-                        <i class="fas fa-flag-checkered fa-2x text-orange opacity-25"></i>
-                    </div>
-                </div>
+<!-- Row 3: 2 Charts (sejajar: Status Laporan + Tingkat Urgensi) -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-orange"></i>Status Laporan</h5>
+            </div>
+            <div class="card-body d-flex justify-content-center">
+                <canvas id="statusChart" height="250" width="250"></canvas>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted small-caps mb-1">Pending</p>
-                            <h2 class="fw-bold text-warning mb-0">{{ number_format($stats['pending_reports']) }}</h2>
-                        </div>
-                        <i class="fas fa-clock fa-2x text-warning opacity-25"></i>
-                    </div>
-                </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-orange"></i>Tingkat Urgensi Laporan</h5>
+            </div>
+            <div class="card-body d-flex justify-content-center">
+                <canvas id="urgencyChart" height="250" width="250"></canvas>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted small-caps mb-1">Diproses</p>
-                            <h2 class="fw-bold text-info mb-0">{{ number_format($stats['in_progress_reports']) }}</h2>
-                        </div>
-                        <i class="fas fa-spinner fa-2x text-info opacity-25"></i>
-                    </div>
-                </div>
+    </div>
+</div>
+
+<!-- Row 4: 2 Charts (sejajar: Top 5 Fasilitas + Distribusi Rating) -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-orange"></i>Top 5 Ruangan Bermasalah</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="facilityChart" height="250"></canvas>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted small-caps mb-1">Selesai</p>
-                            <h2 class="fw-bold text-success mb-0">{{ number_format($stats['completed_reports']) }}</h2>
-                        </div>
-                        <i class="fas fa-check-circle fa-2x text-success opacity-25"></i>
-                    </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-orange"></i>Distribusi Rating</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="ratingChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 5: 1 Chart Full Width (Tren Laporan per Bulan) -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2 text-orange"></i>Tren Laporan per Bulan</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 6: Laporan Terbaru Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0"><i class="fas fa-list-alt me-2 text-orange"></i>Laporan Terbaru</h5>
+                <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr class="table-light">
+                                <th>ID</th>
+                                <th>Pelapor</th>
+                                <th>Ruangan</th>
+                                <th>Judul</th>
+                                <th>Status</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recent_reports as $report)
+                            <tr>
+                                <td>#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
+                                <td>{{ $report->user->name }}</td>
+                                <td>{{ $report->facility->name }}</td>
+                                <td>{{ Str::limit($report->title, 30) }}</td>
+                                <td>{!! $report->status_badge !!}</td>
+                                <td>{{ $report->created_at->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    <a href="{{ route('admin.reports.edit', $report->id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-4">Belum ada laporan</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    {{-- 3. STATS ROW 2: SYSTEM & SLA METRICS --}}
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                            <p class="text-muted small-caps mb-1">Total Users</p>
-                            <h2 class="fw-bold text-primary mb-0">{{ number_format($stats['total_users']) }}</h2>
-                        </div>
-                        <i class="fas fa-users fa-2x text-primary opacity-25"></i>
-                    </div>
-                    <small class="text-muted d-block" style="font-size: 10px;">P: {{ number_format($stats['total_students']) }} | T: {{ number_format($stats['total_technicians']) }}</small>
-                </div>
+<!-- Row 7: User Terbaru Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0"><i class="fas fa-users me-2 text-orange"></i>User Terbaru</h5>
+                <a href="{{ route('admin.users') }}" class="btn btn-sm btn-outline-primary">Kelola User</a>
             </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted small-caps mb-1">Total Ruangan</p>
-                            <h2 class="fw-bold text-success mb-0">{{ number_format($stats['total_rooms']) }}</h2>
-                        </div>
-                        <i class="fas fa-building fa-2x text-success opacity-25"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted small-caps mb-1">SLA Violation</p>
-                            <h2 class="fw-bold text-danger mb-0">{{ number_format($stats['sla_violations']) }}</h2>
-                        </div>
-                        <i class="fas fa-exclamation-triangle fa-2x text-danger opacity-25"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted small-caps mb-1">Kepatuhan SLA</p>
-                            @php
-                                $compliance = $stats['total_reports'] > 0
-                                    ? round((($stats['total_reports'] - $stats['sla_violations']) / $stats['total_reports']) * 100)
-                                    : 100;
-                            @endphp
-                            <h2 class="fw-bold text-info mb-0">{{ $compliance }}<small class="fs-6">%</small></h2>
-                        </div>
-                        <i class="fas fa-chart-line fa-2x text-info opacity-25"></i>
-                    </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr class="table-light">
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>NIM</th>
+                                <th>Role</th>
+                                <th>Tanggal Daftar</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recent_users as $user)
+                            <tr>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->student_id ?? '-' }}</td>
+                                <td>
+                                    @if($user->role == 'admin')
+                                        <span class="badge bg-danger">Admin</span>
+                                    @elseif($user->role == 'teknisi')
+                                        <span class="badge bg-info">Teknisi</span>
+                                    @else
+                                        <span class="badge bg-success">Mahasiswa</span>
+                                    @endif
+                                </td>
+                                <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                                <td>
+                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4">Belum ada user</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-
-    {{-- 4. CHARTS SECTION --}}
-    <div class="row mb-4">
-        <div class="col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 border-0">
-                    <h6 class="text-white mb-0 fw-bold small-caps"><i class="fas fa-chart-pie text-orange me-2"></i>Status Laporan</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="statusChart" height="250"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 border-0">
-                    <h6 class="text-white mb-0 fw-bold small-caps"><i class="fas fa-chart-bar text-orange me-2"></i>Top 5 Ruangan Bermasalah</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="roomChart" height="250"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- 5. RECENT REPORTS TABLE --}}
-    <x-data-table>
-        <x-slot:header>
-            <div class="d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold small-caps"><i class="fas fa-list-alt text-orange me-2"></i>Laporan Terbaru</h6>
-                <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size: 11px;">LIHAT SEMUA</a>
-            </div>
-        </x-slot:header>
-        <x-slot:thead>
-            <th class="ps-3 py-3 small-caps">ID</th>
-            <th class="py-3 small-caps">Pelapor</th>
-            <th class="py-3 small-caps">Ruangan</th>
-            <th class="py-3 small-caps text-center">Status</th>
-            <th class="py-3 small-caps text-center">SLA</th>
-            <th class="py-3 small-caps text-center">Aksi</th>
-        </x-slot:thead>
-        @forelse($recent_reports as $report)
-            <tr>
-                <td class="ps-3 fw-bold text-dark">#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
-                <td class="small">{{ $report->reporter->name ?? 'N/A' }}</td>
-                <td class="small">{{ $report->room->name ?? 'N/A' }}</td>
-                <td class="text-center"><x-report-status :status="$report->status" /></td>
-                <td class="text-center small">
-                    @if($report->sla_deadline < now() && $report->status != 'completed')
-                        <span class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> Terlambat</span>
-                    @else
-                        <span class="text-success fw-bold"><i class="fas fa-check-circle"></i> On Track</span>
-                    @endif
-                </td>
-                <td class="text-center">
-                    <a href="{{ route('admin.reports.show', $report->id) }}" class="btn btn-sm btn-light border p-1 px-2">
-                        <i class="fas fa-eye small text-muted"></i>
-                    </a>
-                </td>
-            </tr>
-        @empty
-            <tr><td colspan="6" class="text-center py-4 small text-muted">Belum ada laporan masuk.</td></tr>
-        @endforelse
-    </x-data-table>
-
-    {{-- 6. RECENT USERS TABLE --}}
-    <x-data-table>
-        <x-slot:header>
-            <div class="d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold small-caps"><i class="fas fa-users text-orange me-2"></i>User Terbaru</h6>
-                <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size: 11px;">KELOLA USER</a>
-            </div>
-        </x-slot:header>
-        <x-slot:thead>
-            <th class="ps-3 py-3 small-caps">Nama</th>
-            <th class="py-3 small-caps">Role</th>
-            <th class="py-3 small-caps">Tgl Daftar</th>
-            <th class="py-3 small-caps text-center">Aksi</th>
-        </x-slot:thead>
-        @forelse($recent_users as $user)
-            <tr>
-                <td class="ps-3 small fw-bold">{{ $user->name }}</td>
-                <td>
-                    @if($user->role == 'admin')<span class="badge bg-danger p-1 px-2" style="font-size: 10px;">ADMIN</span>
-                    @elseif($user->role == 'teknisi')<span class="badge bg-info p-1 px-2" style="font-size: 10px;">TEKNISI</span>
-                    @else<span class="badge bg-success p-1 px-2" style="font-size: 10px;">PELAPOR</span>@endif
-                </td>
-                <td class="small">{{ $user->created_at->format('d/m/Y') }}</td>
-                <td class="text-center">
-                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-light border p-1 px-2">
-                        <i class="fas fa-edit small text-muted"></i>
-                    </a>
-                </td>
-            </tr>
-        @empty
-            <tr><td colspan="4" class="text-center py-4 small text-muted">Belum ada user baru.</td></tr>
-        @endforelse
-    </x-data-table>
 </div>
 @endsection
 
 @push('styles')
 <style>
-    .bg-gradient-orange { background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); }
-    .stat-card { transition: transform 0.3s ease; border-radius: 12px; }
-    .stat-card:hover { transform: translateY(-5px); }
-    .text-orange { color: #FF6B35 !important; }
-    .small-caps { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: #6c757d; }
-    .table-hover tbody tr:hover { background-color: rgba(255, 107, 53, 0.03); }
-    .card { border-radius: 12px; }
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+.card-header {
+    border-bottom: 1px solid #e9ecef;
+}
 </style>
 @endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    new Chart(document.getElementById('statusChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Pending', 'Diproses', 'Selesai'],
-            datasets: [{
-                data: [{{ $stats['pending_reports'] }}, {{ $stats['in_progress_reports'] }}, {{ $stats['completed_reports'] }}],
-                backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
-                borderWidth: 0
-            }]
-        },
-        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
-    });
+// Chart 1: Status Laporan (Donut)
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Pending', 'Diproses', 'Selesai', 'Ditolak'],
+        datasets: [{
+            data: [
+                {{ $stats['pending_reports'] ?? 0 }},
+                {{ $stats['in_progress_reports'] ?? 0 }},
+                {{ $stats['completed_reports'] ?? 0 }},
+                {{ $stats['rejected_reports'] ?? 0 }}
+            ],
+            backgroundColor: ['#6c757d', '#ffc107', '#28a745', '#dc3545'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
 
-    new Chart(document.getElementById('roomChart'), {
-        type: 'bar',
-        data: {
-            labels: @json($reports_by_room->pluck('name')),
-            datasets: [{
-                label: 'Laporan',
-                data: @json($reports_by_room->pluck('reports_count')),
-                backgroundColor: '#FF6B35',
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { ticks: { font: { size: 10 } } } }
+// Chart 2: Tingkat Urgensi (Donut)
+const urgencyCtx = document.getElementById('urgencyChart').getContext('2d');
+new Chart(urgencyCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Rendah', 'Sedang', 'Tinggi'],
+        datasets: [{
+            data: [
+                {{ $urgencyData['low'] ?? 0 }},
+                {{ $urgencyData['medium'] ?? 0 }},
+                {{ $urgencyData['high'] ?? 0 }}
+            ],
+            backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+
+// Chart 3: Top 5 Fasilitas (Bar)
+const facilityCtx = document.getElementById('facilityChart').getContext('2d');
+const facilityLabels = @json($topFacilities->pluck('name'));
+const facilityData = @json($topFacilities->pluck('reports_count'));
+
+new Chart(facilityCtx, {
+    type: 'bar',
+    data: {
+        labels: facilityLabels,
+        datasets: [{
+            label: 'Jumlah Laporan',
+            data: facilityData,
+            backgroundColor: '#FF6B35',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
         }
-    });
+    }
+});
+
+// Chart 4: Distribusi Rating (Bar)
+const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+const ratingData = @json($ratingDistribution);
+
+new Chart(ratingCtx, {
+    type: 'bar',
+    data: {
+        labels: ['⭐ 1', '⭐⭐ 2', '⭐⭐⭐ 3', '⭐⭐⭐⭐ 4', '⭐⭐⭐⭐⭐ 5'],
+        datasets: [{
+            label: 'Jumlah Rating',
+            data: ratingData,
+            backgroundColor: '#FF8C42',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+    }
+});
+
+// Chart 5: Tren Laporan per Bulan (Line)
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+const trendLabels = @json($monthlyLabels);
+const trendData = @json($monthlyData);
+
+new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: trendLabels,
+        datasets: [{
+            label: 'Jumlah Laporan',
+            data: trendData,
+            borderColor: '#FF6B35',
+            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+    }
+});
 </script>
 @endpush

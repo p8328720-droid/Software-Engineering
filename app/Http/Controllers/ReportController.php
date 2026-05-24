@@ -2,171 +2,287 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AuditLog;
 use App\Models\Report;
-use App\Models\Room;
-use App\Models\Sla; // Menggunakan Sla (Case sensitive sesuai standard Laravel)
-use App\Models\User;
-use App\Services\ReportService;
+use App\Models\Facility;
+use App\Models\ReportStatus;
+use App\Models\AuditLog;
+use App\Models\Comment;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
-    protected $reportService;
-
-    public function __construct(ReportService $reportService)
-    {
-        $this->reportService = $reportService;
-    }
-
-    /**
-     * Menampilkan daftar laporan berdasarkan role.
-     */
     public function index()
     {
-        $user = Auth::user();
-        $query = Report::with(['room', 'sla', 'reporter']);
-
-        if ($user->role === 'pelapor') {
-            $reports = $query->where('reporter_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-            return view('pelapor.reports.index', compact('reports'));
-        }
-
-        // Untuk Admin & Teknisi bisa melihat semua laporan
-        $reports = $query->orderBy('created_at', 'desc')->paginate(10);
-        return view('admin.reports.index', compact('reports'));
+        $reports = Report::with('facility')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+        return view('mahasiswa.reports.index', compact('reports'));
     }
 
     public function create()
     {
-        if (Auth::user()->role !== 'pelapor') {
-            abort(403);
-        }
-
-        $rooms = Room::all();
-        
-        // Ambil daftar kategori unik dari tabel SLA untuk dropdown di form
-        $categories = Sla::where('is_active', true)
-                        ->distinct()
-                        ->pluck('facility_category');
-
-        return view('pelapor.reports.create', compact('rooms', 'categories'));
+        $facilities = Facility::where('is_active', true)->get();
+        return view('mahasiswa.reports.create', compact('facilities'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'room_id' => 'required|exists:rooms,id',
-            'facility_category' => 'required|string', 
+            'facility_id' => 'required|exists:facilities,id',
+            'location_detail' => 'required|string',
             'urgency' => 'required|in:low,medium,high',
             'description' => 'required|string',
             'image' => 'nullable|image|max:2048',
         ]);
 
-        // 1. Cari rule SLA spesifik (Matrix Kategori + Urgensi)
-        $sla = Sla::where('facility_category', $request->facility_category)
-                  ->where('urgency', $request->urgency)
-                  ->firstOrFail();
-
-        // 2. Hitung Deadline via Service
-        $deadline = $this->reportService->calculateSLADeadline($request->facility_category, $request->urgency);
-
-        // 3. Mapping data untuk mass assignment
-        $data = $request->except(['image', 'facility_category']);
-        $data['reporter_id'] = Auth::id();
-        $data['status'] = 'pending';
-        $data['sla_id'] = $sla->id;
-        $data['sla_deadline'] = $deadline; // Tetap pakai sla_deadline sesuai request
-
+        $data = $request->all();
+        $data['user_id'] = Auth::id();
+        $data['status'] = 'in_progress';
+        
+        $facility = Facility::find($request->facility_id);
+        $baseHours = $facility->sla_hours ?? 48;
+        
+        switch ($request->urgency) {
+            case 'high': $slaHours = $baseHours * 0.5; break;
+            case 'medium': $slaHours = $baseHours * 0.75; break;
+            default: $slaHours = $baseHours; break;
+        }
+        
+        $data['sla_deadline'] = now()->addHours($slaHours);
+        
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('reports', 'public');
         }
 
         $report = Report::create($data);
 
-        // 4. Catat riwayat awal
-        AuditLog::create([
+        ReportStatus::create([
             'report_id' => $report->id,
             'user_id' => Auth::id(),
-            'status_changed_to' => 'pending',
-            'notes' => "Laporan dibuat. Target resolusi: {$sla->resolution_hours} jam.",
+            'status' => 'in_progress',
+            'description' => 'Laporan dibuat dan langsung diproses'
         ]);
 
-        return redirect()->route('pelapor.reports.show', $report->id)
-            ->with('success', 'Laporan berhasil dikirim dan masuk antrean.');
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'create_report',
+            'auditable_type' => Report::class,
+            'auditable_id' => $report->id,
+            'ip_address' => $request->ip(),
+        ]);
+
+        NotificationService::newReportCreated($report);
+
+        return redirect()->route('mahasiswa.reports.show', $report)
+            ->with('success', 'Laporan berhasil dikirim');
     }
 
-    public function show($id)
+    public function show(Report $report)
     {
-        $report = Report::with(['reporter', 'room', 'sla', 'auditLogs.user', 'assignment.technician'])
-            ->findOrFail($id);
-
-        // Security check untuk pelapor
-        if (Auth::user()->role === 'pelapor' && $report->reporter_id !== Auth::id()) {
+        if ($report->user_id !== Auth::id() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'teknisi') {
             abort(403);
         }
-
-        $technicians = User::where('role', 'teknisi')->get();
-
-        return view('admin.reports.show', compact('report', 'technicians'));
+        $report->load('comments.user', 'statusHistory.user', 'facility');
+        return view('mahasiswa.reports.show', compact('report'));
     }
 
     /**
-     * Menugaskan teknisi ke laporan (Admin Only).
+     * Submit rating for completed report (only by the reporter, once)
      */
-    public function assignTechnician(Request $request, Report $report)
+    public function rating(Request $request, Report $report)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
+        // Validasi: hanya pemilik laporan
+        if ($report->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses ke laporan ini.'
+            ], 403);
         }
-
+        
+        // Validasi: laporan harus selesai
+        if ($report->status !== 'completed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya laporan yang sudah selesai yang dapat diberi rating.'
+            ], 400);
+        }
+        
+        // Validasi: hanya sekali
+        if ($report->rating !== null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah memberikan rating untuk laporan ini.'
+            ], 400);
+        }
+        
         $request->validate([
-            'assignee_id' => 'required|exists:users,id',
-            'notes' => 'nullable|string|max:1000',
+            'rating' => 'required|integer|min:1|max:5',
+            'rating_comment' => 'nullable|string|max:500',
         ]);
-
-        // Update atau buat penugasan baru
-        $report->assignment()->updateOrCreate(
-            ['report_id' => $report->id],
-            [
-                'technician_id' => $request->assignee_id,
-                'assigned_by' => Auth::id(),
-                'assigned_at' => now(),
-                'notes' => $request->notes,
-            ]
+        
+        // Update rating
+        $report->update([
+            'rating' => $request->rating,
+            'rating_comment' => $request->rating_comment,
+        ]);
+        
+        // Kirim notifikasi ke teknisi
+        NotificationService::sendToRole(
+            'teknisi',
+            'Rating Baru untuk Laporan #' . str_pad($report->id, 5, '0', STR_PAD_LEFT),
+            'Mahasiswa memberi rating ' . $request->rating . ' bintang untuk laporan yang Anda tangani',
+            'success',
+            $report->id
         );
-
-        // Ubah status laporan menjadi in_progress
-        // $report->update(['status' => 'in_progress']);
-
-        AuditLog::create([
-            'report_id' => $report->id,
-            'user_id' => Auth::id(),
-            'status_changed_to' => 'in_progress',
-            'notes' => $request->notes ?? 'Admin telah memverifikasi dan menugaskan teknisi.',
+        
+        // Kirim notifikasi ke admin
+        NotificationService::sendToRole(
+            'admin',
+            'Rating Baru untuk Laporan #' . str_pad($report->id, 5, '0', STR_PAD_LEFT),
+            'Mahasiswa memberi rating ' . $request->rating . ' bintang',
+            'info',
+            $report->id
+        );
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Terima kasih atas rating dan masukan Anda!',
+            'rating' => $report->rating,
+            'rating_comment' => $report->rating_comment
         ]);
-
-        return redirect()->back()->with('success', 'Teknisi berhasil ditugaskan.');
     }
 
     /**
-     * Menyimpan komentar/catatan tambahan ke Audit Log.
+     * Add comment to report
      */
-    public function storeComment(Request $request, Report $report)
+    public function addComment(Request $request, Report $report)
     {
-        $request->validate(['comment' => 'required|string|max:1000']);
-
-        AuditLog::create([
+        $request->validate([
+            'comment' => 'required|string|max:500',
+        ]);
+        
+        $comment = Comment::create([
             'report_id' => $report->id,
             'user_id' => Auth::id(),
-            'status_changed_to' => $report->status, // Status tidak berubah, hanya nambah catatan
-            'notes' => $request->comment,
+            'comment' => $request->comment,
+            'user_type' => Auth::user()->role,
         ]);
+        
+        // Load user data untuk response
+        $comment->load('user');
+        
+        // Kirim notifikasi ke pihak terkait
+        $this->sendCommentNotification($report, $comment);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Komentar berhasil ditambahkan',
+            'comment' => [
+                'id' => $comment->id,
+                'comment' => $comment->comment,
+                'user_name' => $comment->user->name,
+                'user_role' => $comment->user->role,
+                'user_avatar' => $comment->user->avatar_url,
+                'created_at' => $comment->created_at->format('d M Y, H:i')
+            ]
+        ]);
+    }
+    
+    /**
+     * Send notification when comment is added
+     */
+    private function sendCommentNotification($report, $comment)
+    {
+        $user = Auth::user();
+        $title = 'Komentar Baru pada Laporan #' . str_pad($report->id, 5, '0', STR_PAD_LEFT);
+        $message = $user->name . ' (' . $user->role . ') menambahkan komentar: "' . substr($comment->comment, 0, 100) . '"';
+        
+        // Notifikasi ke pemilik laporan (jika bukan dirinya sendiri)
+        if ($report->user_id !== $user->id) {
+            NotificationService::send($report->user_id, $title, $message, 'info', $report->id);
+        }
+        
+        // Notifikasi ke teknisi dan admin
+        if ($user->role == 'mahasiswa') {
+            NotificationService::sendToRole('teknisi', $title, $message, 'info', $report->id);
+            NotificationService::sendToRole('admin', $title, $message, 'info', $report->id);
+        }
+    }
 
-        return redirect()->back()->with('success', 'Catatan berhasil ditambahkan.');
+    public function tracking()
+    {
+        return view('mahasiswa.tracking');
+    }
+
+    public function searchTracking(Request $request)
+    {
+        $request->validate(['code' => 'required|string']);
+        
+        $reportId = $this->parseReportId($request->code);
+        
+        if (!$reportId) {
+            return response()->json(['success' => false, 'message' => 'Format tidak valid'], 400);
+        }
+
+        $report = Report::with(['facility', 'statusHistory.user'])
+            ->where('user_id', Auth::id())
+            ->where('id', $reportId)
+            ->first();
+
+        if (!$report) {
+            return response()->json(['success' => false, 'message' => 'Laporan tidak ditemukan'], 404);
+        }
+
+        $timeline = [];
+        foreach ($report->statusHistory as $history) {
+            $timeline[] = [
+                'status' => $history->status == 'completed' ? 'completed' : ($history->status == 'in_progress' ? 'active' : 'pending'),
+                'title' => $this->getStatusLabel($history->status),
+                'date' => $history->created_at?->format('d M Y, H:i') ?? '-',
+                'description' => $history->description,
+                'user' => $history->user->name ?? 'Sistem'
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $report->id,
+                'code' => '#' . str_pad($report->id, 5, '0', STR_PAD_LEFT),
+                'title' => $report->title,
+                'description' => $report->description,
+                'location' => $report->location_detail,
+                'facility' => $report->facility->name ?? '-',
+                'status' => $report->status,
+                'status_label' => $this->getStatusLabel($report->status),
+                'status_badge' => $report->status_badge,
+                'created_at' => $report->created_at->format('d M Y, H:i'),
+                'sla_deadline' => $report->sla_deadline?->format('d M Y, H:i') ?? '-',
+                'timeline' => $timeline
+            ]
+        ]);
+    }
+
+    private function parseReportId($input)
+    {
+        $cleaned = ltrim($input, '#');
+        $cleaned = ltrim($cleaned, '0');
+        if (ctype_digit($cleaned) && !empty($cleaned)) {
+            return (int) $cleaned;
+        }
+        return null;
+    }
+
+    private function getStatusLabel($status)
+    {
+        $labels = [
+            'pending' => 'Menunggu', 'verified' => 'Diverifikasi',
+            'in_progress' => 'Diproses', 'completed' => 'Selesai', 'rejected' => 'Ditolak'
+        ];
+        return $labels[$status] ?? $status;
     }
 }

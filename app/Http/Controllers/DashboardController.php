@@ -3,105 +3,99 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
-use App\Models\Room;
-use App\Models\TechnicianAssignment;
-use App\Models\User; // Ganti Facility jadi Room
+use App\Models\Facility;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
-        $user = Auth::user();
 
-        if ($user->role === 'admin') {
-            return $this->adminDashboard();
-        } elseif ($user->role === 'teknisi') {
-            return $this->teknisiDashboard();
-        } else {
-            return $this->pelaporDashboard();
-        }
-    }
-
-    private function pelaporDashboard()
+    public function mahasiswaDashboard()
     {
         $userId = Auth::id();
+        
         $stats = [
-            'total_reports' => Report::where('reporter_id', $userId)->count(),
-            'pending_reports' => Report::where('reporter_id', $userId)->where('status', 'Pending')->count(),
-            'in_progress_reports' => Report::where('reporter_id', $userId)->where('status', 'Processing')->count(),
-            'completed_reports' => Report::where('reporter_id', $userId)->where('status', 'Completed')->count(),
+            'total_reports' => Report::where('user_id', $userId)->count(),
+            'pending_reports' => Report::where('user_id', $userId)->where('status', 'pending')->count(),
+            'in_progress_reports' => Report::where('user_id', $userId)->where('status', 'in_progress')->count(),
+            'completed_reports' => Report::where('user_id', $userId)->where('status', 'completed')->count(),
         ];
-
-        // Panggil relasi room dan category
-        $recent_reports = Report::with(['room', 'category'])
-            ->where('reporter_id', $userId)
-            ->orderBy('created_at', 'desc')
+        
+        $recentReports = Report::with('facility')
+            ->where('user_id', $userId)
+            ->latest()
             ->limit(5)
             ->get();
-
-        return view('pelapor.dashboard', compact('stats', 'recent_reports'));
+        
+        return view('mahasiswa.dashboard', compact('stats', 'recentReports'));
     }
 
-    private function adminDashboard()
+    public function teknisiDashboard()
+    {
+        // Statistik
+        $stats = [
+            'active_tasks' => Report::whereIn('status', ['pending', 'in_progress'])->count(),
+           'completed_tasks' => Report::where('status', 'completed')
+            ->whereDate('resolved_at', today())
+                    ->count(),
+            'total_reports' => Report::count(),
+        ];
+        
+        // Tugas aktif
+        $active_tasks = Report::with(['user', 'facility'])
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Tugas selesai dengan rating (untuk rata-rata rating teknisi)
+        $completedTasks = Report::with(['user', 'facility'])
+            ->where('status', 'completed')
+            ->orderBy('resolved_at', 'desc')
+            ->limit(10)
+            ->get();
+        
+        // Hitung rata-rata rating dari laporan yang sudah dinilai
+        $avgRating = Report::where('status', 'completed')
+            ->whereNotNull('rating')
+            ->avg('rating') ?? 0;
+        
+        // Statistik rating tambahan
+        $ratingStats = [
+            'total_rated' => Report::where('status', 'completed')->whereNotNull('rating')->count(),
+            'total_completed' => Report::where('status', 'completed')->count(),
+            'rating_distribution' => [
+                1 => Report::where('rating', 1)->count(),
+                2 => Report::where('rating', 2)->count(),
+                3 => Report::where('rating', 3)->count(),
+                4 => Report::where('rating', 4)->count(),
+                5 => Report::where('rating', 5)->count(),
+            ]
+        ];
+        
+        return view('teknisi.dashboard', compact('stats', 'active_tasks', 'completedTasks', 'avgRating', 'ratingStats'));
+    }
+  
+        
+    public function adminDashboard()
     {
         $stats = [
             'total_reports' => Report::count(),
-            'pending_reports' => Report::where('status', 'Pending')->count(),
-            'in_progress_reports' => Report::where('status', 'Processing')->count(),
-            'completed_reports' => Report::where('status', 'Completed')->count(),
+            'pending_reports' => Report::where('status', 'pending')->count(),
+            'in_progress_reports' => Report::where('status', 'in_progress')->count(),
+            'completed_reports' => Report::where('status', 'completed')->count(),
             'total_users' => User::count(),
             'total_technicians' => User::where('role', 'teknisi')->count(),
-            'total_students' => User::where('role', 'pelapor')->count(),
-            'total_rooms' => 0, // Dulu total_facilities
-
-            // Cek SLA pakai kolom 'deadline'
-            'sla_violations' => Report::where('status', '!=', 'Completed')
-                ->where('sla_deadline', '<', now())
-                ->count(),
+            'total_students' => User::where('role', 'mahasiswa')->count(),
+            'total_facilities' => Facility::count(),
         ];
-
-        // Panggil relasi reporter, room, dan category
-        $recent_reports = Report::with(['reporter', 'room', 'category'])
-            ->orderBy('created_at', 'desc')
+        
+        $recent_reports = Report::with(['user', 'facility'])
+            ->latest()
             ->limit(10)
             ->get();
-
-        $reports_by_status = Report::selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status')
-            ->toArray();
-
-        // Ganti perhitungan fasilitas jadi ruangan (Top 5 Ruangan Paling Sering Rusak)
-  $reports_by_room = collect([]); // Empty collection since rooms table doesn't exist yet
-
-        $recent_users = User::orderBy('created_at', 'desc')->limit(5)->get();
-
-        return view('admin.dashboard', compact('stats', 'recent_reports', 'reports_by_status', 'reports_by_room', 'recent_users'));
-    }
-
-    private function teknisiDashboard()
-    {
-        $technicianId = Auth::id();
-
-        // 1. Sesuaikan Key dengan Blade lu (active_tasks & completed_tasks)
-        $stats = [
-            'active_tasks' => TechnicianAssignment::where('technician_id', $technicianId)
-                ->whereNull('completed_at')
-                ->count(),
-            'completed_tasks' => TechnicianAssignment::where('technician_id', $technicianId)
-                ->whereNotNull('completed_at')
-                ->count(),
-        ];
-
-        // 2. Ambil data tugas aktif untuk tabel
-        // Note: Pastikan relasi 'report' sudah ada di model TechnicianAssignment
-        $active_tasks = TechnicianAssignment::with(['report.room'])
-            ->where('technician_id', $technicianId)
-            ->whereNull('completed_at')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('teknisi.dashboard', compact('stats', 'active_tasks'));
+        
+        $recent_users = User::latest()->limit(5)->get();
+        
+        return view('admin.dashboard', compact('stats', 'recent_reports', 'recent_users'));
     }
 }

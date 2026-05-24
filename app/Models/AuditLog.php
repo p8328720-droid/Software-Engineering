@@ -2,34 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AuditLog extends Model
 {
-    use HasFactory;
-
-    // Sesuaikan dengan kolom di migration yang baru
     protected $fillable = [
-        'report_id',
-        'user_id',
-        'status_changed_to',
-        'notes',
+        'user_id', 'action', 'auditable_type', 'auditable_id', 
+        'old_values', 'new_values', 'ip_address'
     ];
 
-    /**
-     * Relasi kembali ke Laporan yang sedang diaudit
-     */
-    public function report()
-    {
-        return $this->belongsTo(Report::class);
-    }
+    protected $casts = [
+        'old_values' => 'array',
+        'new_values' => 'array',
+    ];
 
-    /**
-     * Relasi ke User (Siapa yang mengubah status atau ngasih komentar)
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function auditable()
+    {
+        return $this->morphTo();
     }
 }

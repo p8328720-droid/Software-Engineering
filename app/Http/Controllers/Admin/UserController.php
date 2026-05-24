@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(10);
+        $users = User::latest()->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
@@ -33,7 +33,7 @@ class UserController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'student_id' => $request->student_id,
@@ -44,63 +44,38 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil ditambahkan');
+        return redirect()->route('admin.users')->with('success', 'User berhasil ditambahkan');
     }
 
-    public function edit($id)
+    public function edit(User $user)
     {
-        $user = User::findOrFail($id);
         return view('admin.users.edit', compact('user'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        $user = User::findOrFail($id);
-        
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'student_id' => 'nullable|string|max:20|unique:users,student_id,' . $id,
-            'phone' => 'nullable|string|max:15',
-            'faculty' => 'nullable|string|max:255',
-            'major' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:mahasiswa,teknisi,admin',
-            'password' => 'nullable|string|min:6|confirmed',
+            'password' => 'nullable|min:6|confirmed',
         ]);
 
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'student_id' => $request->student_id,
-            'phone' => $request->phone,
-            'faculty' => $request->faculty,
-            'major' => $request->major,
-            'role' => $request->role,
-        ];
-        
+        $data = $request->only('name', 'email', 'role');
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
-        
-        $user->update($data);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil diperbarui');
+        $user->update($data);
+        return redirect()->route('admin.users')->with('success', 'User berhasil diperbarui');
     }
 
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = User::findOrFail($id);
-        
         if ($user->id == auth()->id()) {
-            return redirect()->route('admin.users.index')
-                ->with('error', 'Anda tidak dapat menghapus akun sendiri');
+            return back()->with('error', 'Tidak dapat menghapus akun sendiri');
         }
-        
         $user->delete();
-        
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil dihapus');
+        return back()->with('success', 'User berhasil dihapus');
     }
 }

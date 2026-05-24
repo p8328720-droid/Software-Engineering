@@ -15,7 +15,6 @@
             --primary-orange: #FF6B35;
             --primary-orange-dark: #E85A24;
             --primary-orange-light: #FF8C42;
-            --secondary-orange: #F9A26C;
             --light-orange: #FFF4E6;
             --dark-gray: #2C3E50;
         }
@@ -28,8 +27,6 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            line-height: 1.6;
-            color: #333;
         }
         
         .navbar {
@@ -60,7 +57,7 @@
             border: none;
             border-radius: 20px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s;
             background: white;
         }
         
@@ -81,10 +78,9 @@
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
             border: none;
-            padding: 10px 25px;
             border-radius: 50px;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            padding: 10px 25px;
+            transition: all 0.3s;
         }
         
         .btn-primary:hover {
@@ -92,11 +88,22 @@
             box-shadow: 0 5px 15px rgba(255,107,53,0.4);
         }
         
+        .btn-outline-primary {
+            border-radius: 50px;
+            color: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
+        
         .form-control, .form-select {
             border-radius: 12px;
-            border: 2px solid #E9ECEF;
+            border: 2px solid #e9ecef;
             padding: 10px 15px;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
         
         .form-control:focus, .form-select:focus {
@@ -142,9 +149,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <i class="fas fa-tools"></i> SiRUKA
-            </a>
+            <a class="navbar-brand" href="{{ route('landing') }}"><i class="fas fa-tools"></i> SiRUKA</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -157,19 +162,13 @@
                             {{ Auth::user()->name }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profil</a></li>
+                            <li><a class="dropdown-item" href="{{ route('notifications.index') }}"><i class="fas fa-bell me-2"></i> Notifikasi</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i> Logout</button>
-                                </form>
-                            </li>
+                            <li><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i> Logout</button></form></li>
                         </ul>
                     </li>
                     @else
-                    <li class="nav-item"><a class="nav-link" href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-1"></i> Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('register') }}"><i class="fas fa-user-plus me-1"></i> Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('landing') }}"><i class="fas fa-home me-1"></i> Home</a></li>
                     @endauth
                 </ul>
             </div>
@@ -182,7 +181,7 @@
     
     <footer class="footer">
         <div class="container">
-            <p class="mb-0">&copy; 2024 SiRUKA - Sistem Informasi Rusak Kampus</p>
+            <p class="mb-0">&copy; {{ date('Y') }} SiRUKA - Sistem Informasi Rusak Kampus</p>
             <small class="text-muted">Laporkan kerusakan fasilitas dengan mudah dan cepat</small>
         </div>
     </footer>

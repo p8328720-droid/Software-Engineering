@@ -6,9 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReportStatus extends Model
 {
-    protected $fillable = [
-        'report_id', 'user_id', 'status', 'description'
-    ];
+    protected $fillable = ['report_id', 'user_id', 'status', 'description'];
 
     public function report()
     {

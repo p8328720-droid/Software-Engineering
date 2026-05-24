@@ -2,76 +2,77 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Report extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'title',
-        'reporter_id',
-        'room_id',
-        'sla_id',
-        'description',
-        'image_path',
-        'urgency',
-        'status',
-        'sla_deadline',
+        'user_id', 'facility_id', 'title', 'description', 'location_detail',
+        'urgency', 'status', 'image_path', 'sla_deadline', 'resolved_at',
+        'admin_note', 'rating', 'rating_comment'
     ];
 
     protected $casts = [
         'sla_deadline' => 'datetime',
+        'resolved_at' => 'datetime',
     ];
 
-    /**
-     * Relasi ke Pelapor (Mahasiswa/User)
-     * Menggantikan relasi user() lama agar lebih deskriptif
-     */
-    public function reporter()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'reporter_id');
+        return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relasi ke Ruangan (Lokasi Kerusakan)
-     * Menggantikan relasi facility() punya temen lu
-     */
-    public function room()
+    public function facility()
     {
-        return $this->belongsTo(Room::class);
+        return $this->belongsTo(Facility::class);
     }
 
-    /**
-     * Relasi ke Kategori Kerusakan (Listrik, AC, dll)
-     * Ini yang ngasih tau kita batas SLA-nya berapa lama
-     */
-    public function category()
+    public function comments()
     {
-        return $this->belongsTo(Category::class);
+        return $this->hasMany(Comment::class);
     }
 
-    /**
-     * Relasi ke Penugasan Teknisi
-     * Pakai hasOne karena satu laporan biasanya di-handle satu penugasan aktif
-     */
-    public function assignment()
+    public function statusHistory()
     {
-        return $this->hasOne(TechnicianAssignment::class);
+        return $this->hasMany(ReportStatus::class);
     }
 
-    /**
-     * Relasi ke Riwayat Perubahan Status (Audit Log)
-     * Menggantikan statusHistory() dan comments() yang kepanjangan
-     */
-    public function auditLogs()
+    public function notifications()
     {
-        return $this->hasMany(AuditLog::class);
+        return $this->hasMany(Notification::class);
     }
 
-    public function sla()
+    public function getStatusBadgeAttribute()
     {
-        return $this->belongsTo(Sla::class, 'sla_id');
+        $badges = [
+            'pending' => '<span class="badge bg-secondary">Menunggu</span>',
+            'verified' => '<span class="badge bg-info">Diverifikasi</span>',
+            'in_progress' => '<span class="badge bg-warning">Diproses</span>',
+            'completed' => '<span class="badge bg-success">Selesai</span>',
+            'rejected' => '<span class="badge bg-danger">Ditolak</span>',
+        ];
+        return $badges[$this->status] ?? '<span class="badge bg-secondary">Unknown</span>';
+    }
+
+    public function getUrgencyBadgeAttribute()
+    {
+        $badges = [
+            'low' => '<span class="badge bg-success">Rendah</span>',
+            'medium' => '<span class="badge bg-warning">Sedang</span>',
+            'high' => '<span class="badge bg-danger">Tinggi</span>',
+        ];
+        return $badges[$this->urgency] ?? '<span class="badge bg-secondary">Unknown</span>';
+    }
+
+    // Cek apakah user bisa memberi rating
+    public function canRate($userId)
+    {
+        return $this->user_id == $userId && $this->status == 'completed' && is_null($this->rating);
+    }
+
+    // Cek apakah user sudah memberi rating
+    public function hasRated()
+    {
+        return !is_null($this->rating);
     }
 }

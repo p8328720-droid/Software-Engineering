@@ -12,38 +12,48 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password', 'student_id', 'phone', 
-        'faculty', 'major', 'role', 'avatar'
+        'faculty', 'major', 'role'
     ];
 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
+    // ========== RELATIONS ==========
     public function reports()
     {
         return $this->hasMany(Report::class);
     }
 
-    public function technicianAssignments()
+    public function comments()
     {
-        return $this->hasMany(TechnicianAssignment::class, 'technician_id');
+        return $this->hasMany(Comment::class);
     }
 
-    public function isAdmin()
+    // Relasi ke notifikasi - HANYA SATU KALI DEKLARASI
+    public function notifications()
     {
-        return $this->role === 'admin';
+        return $this->hasMany(Notification::class);
     }
 
-    public function isPelapor()
+    // ========== NOTIFICATION METHODS ==========
+    public function unreadNotifications()
     {
-        return $this->role === 'pelapor';
+        return $this->notifications()->where('is_read', false);
     }
 
-    public function isTeknisi()
+    public function getUnreadNotificationsCountAttribute()
     {
-        return $this->role === 'teknisi';
+        return $this->unreadNotifications()->count();
     }
 
+    public function markAllNotificationsAsRead()
+    {
+        $this->notifications()->where('is_read', false)->update([
+            'is_read' => true,
+            'read_at' => now(),
+        ]);
+    }
+
+    // ========== HELPER METHODS ==========
     public function getAvatarUrlAttribute()
     {
         return "https://ui-avatars.com/api/?background=FF6B35&color=fff&size=100&name=" . urlencode($this->name);
