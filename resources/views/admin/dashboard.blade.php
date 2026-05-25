@@ -10,7 +10,7 @@
     </div>
 </div>
 
-<!-- Row 1: Stats Cards - Status Laporan -->
+<!-- Row 1: Stats Cards (4 kolom sama besar) -->
 <div class="row mb-4">
     <div class="col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
@@ -46,7 +46,7 @@
     </div>
 </div>
 
-<!-- Row 2: Stats Cards - Total User, Total Ruangan, SLA Violation, Kepatuhan SLA -->
+<!-- Row 2: Stats Cards (4 kolom sama besar) -->
 <div class="row mb-4">
     <div class="col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
@@ -90,29 +90,7 @@
     </div>
 </div>
 
-<!-- Row 3: Additional Stats - Rata-rata Waktu & Rating -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <i class="fas fa-clock fa-2x text-info mb-2"></i>
-                <h4 class="mb-0">{{ round($avgResolutionTime ?? 0) }} <small>jam</small></h4>
-                <small class="text-muted">Rata-rata Waktu Penyelesaian</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <i class="fas fa-star fa-2x text-warning mb-2"></i>
-                <h4 class="mb-0">{{ number_format($avgRating ?? 0, 1) }} <small>/5</small></h4>
-                <small class="text-muted">Rata-rata Rating</small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Row 4: 2 Charts (sejajar: Status Laporan + Komposisi Pengguna) -->
+<!-- Row 3: 2 Charts (sejajar: Status Laporan + Tingkat Urgensi) -->
 <div class="row mb-4">
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
@@ -127,24 +105,48 @@
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3">
-                <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-orange"></i>Komposisi Pengguna</h5>
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-orange"></i>Tingkat Urgensi Laporan</h5>
             </div>
-            <div class="card-body">
-                <canvas id="userChart" height="250"></canvas>
+            <div class="card-body d-flex justify-content-center">
+                <canvas id="urgencyChart" height="250" width="250"></canvas>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Row 5: Top 5 Fasilitas (Full Width Bar Chart) -->
+<!-- Row 4: 2 Charts (sejajar: Top 5 Fasilitas + Distribusi Rating) -->
 <div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3">
                 <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-orange"></i>Top 5 Ruangan Bermasalah</h5>
             </div>
             <div class="card-body">
-                <canvas id="facilityChart" height="300"></canvas>
+                <canvas id="facilityChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-orange"></i>Distribusi Rating</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="ratingChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 5: 1 Chart Full Width (Tren Laporan per Bulan) -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2 text-orange"></i>Tren Laporan per Bulan</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" height="300"></canvas>
             </div>
         </div>
     </div>
@@ -277,10 +279,15 @@ const statusCtx = document.getElementById('statusChart').getContext('2d');
 new Chart(statusCtx, {
     type: 'doughnut',
     data: {
-        labels: @json($chartStatus['labels']),
+        labels: ['Pending', 'Diproses', 'Selesai', 'Ditolak'],
         datasets: [{
-            data: @json($chartStatus['data']),
-            backgroundColor: @json($chartStatus['colors']),
+            data: [
+                {{ $stats['pending_reports'] ?? 0 }},
+                {{ $stats['in_progress_reports'] ?? 0 }},
+                {{ $stats['completed_reports'] ?? 0 }},
+                {{ $stats['rejected_reports'] ?? 0 }}
+            ],
+            backgroundColor: ['#6c757d', '#ffc107', '#28a745', '#dc3545'],
             borderWidth: 0
         }]
     },
@@ -291,33 +298,33 @@ new Chart(statusCtx, {
     }
 });
 
-// Chart 2: Komposisi Pengguna (Bar)
-const userCtx = document.getElementById('userChart').getContext('2d');
-new Chart(userCtx, {
-    type: 'bar',
+// Chart 2: Tingkat Urgensi (Donut)
+const urgencyCtx = document.getElementById('urgencyChart').getContext('2d');
+new Chart(urgencyCtx, {
+    type: 'doughnut',
     data: {
-        labels: @json($chartUsers['labels']),
+        labels: ['Rendah', 'Sedang', 'Tinggi'],
         datasets: [{
-            label: 'Jumlah User',
-            data: @json($chartUsers['data']),
-            backgroundColor: @json($chartUsers['colors']),
-            borderRadius: 8
+            data: [
+                {{ $urgencyData['low'] ?? 0 }},
+                {{ $urgencyData['medium'] ?? 0 }},
+                {{ $urgencyData['high'] ?? 0 }}
+            ],
+            backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+            borderWidth: 0
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: true,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1 } }
-        }
+        plugins: { legend: { position: 'bottom' } }
     }
 });
 
 // Chart 3: Top 5 Fasilitas (Bar)
 const facilityCtx = document.getElementById('facilityChart').getContext('2d');
-const facilityLabels = @json($chartFacility['labels']);
-const facilityData = @json($chartFacility['data']);
+const facilityLabels = @json($topFacilities->pluck('name'));
+const facilityData = @json($topFacilities->pluck('reports_count'));
 
 new Chart(facilityCtx, {
     type: 'bar',
@@ -334,6 +341,59 @@ new Chart(facilityCtx, {
         responsive: true,
         maintainAspectRatio: true,
         plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+    }
+});
+
+// Chart 4: Distribusi Rating (Bar)
+const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+const ratingData = @json($ratingDistribution);
+
+new Chart(ratingCtx, {
+    type: 'bar',
+    data: {
+        labels: ['⭐ 1', '⭐⭐ 2', '⭐⭐⭐ 3', '⭐⭐⭐⭐ 4', '⭐⭐⭐⭐⭐ 5'],
+        datasets: [{
+            label: 'Jumlah Rating',
+            data: ratingData,
+            backgroundColor: '#FF8C42',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+    }
+});
+
+// Chart 5: Tren Laporan per Bulan (Line)
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+const trendLabels = @json($monthlyLabels);
+const trendData = @json($monthlyData);
+
+new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: trendLabels,
+        datasets: [{
+            label: 'Jumlah Laporan',
+            data: trendData,
+            borderColor: '#FF6B35',
+            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
         scales: {
             y: { beginAtZero: true, ticks: { stepSize: 1 } }
         }
