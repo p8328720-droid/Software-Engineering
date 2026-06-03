@@ -6,7 +6,6 @@ chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache 2>/dev/null
 ln -sfn /var/www/storage/app/public /var/www/public/storage
 
 if [ ! -f .env ]; then
-
     cp .env.example .env
 fi
 
@@ -15,7 +14,6 @@ if ! grep -q "APP_KEY=base64" .env; then
 fi
 
 echo "Menunggu transisi final database..."
-sleep 5
 until php artisan db:monitor > /dev/null 2>&1; do
     echo "Database sedang inisialisasi/restart, mencoba lagi dalam 3 detik..."
     sleep 3
