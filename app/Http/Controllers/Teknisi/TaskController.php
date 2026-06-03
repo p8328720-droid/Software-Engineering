@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teknisi;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
+use App\Models\ReportStatus;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
