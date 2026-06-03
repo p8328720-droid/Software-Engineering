@@ -2,6 +2,9 @@
 
 chmod -R 775 /var/www/storage /var/www/bootstrap/cache 2>/dev/null
 chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache 2>/dev/null
+
+ln -sfn /var/www/storage/app/public /var/www/public/storage
+
 if [ ! -f .env ]; then
 
     cp .env.example .env
@@ -10,9 +13,6 @@ fi
 if ! grep -q "APP_KEY=base64" .env; then
     php artisan key:generate
 fi
-
-# echo "Memeriksa & menginstal Composer dependencies..."
-# composer install --no-interaction --prefer-dist --optimize-autoloader
 
 echo "Menunggu transisi final database..."
 sleep 5
