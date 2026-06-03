@@ -19,6 +19,8 @@ WORKDIR /var/www
 COPY . .
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
+RUN ln -s storage/app/public public/storage
+
 # Set up our startup script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
