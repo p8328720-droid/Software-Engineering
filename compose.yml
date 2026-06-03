@@ -9,7 +9,7 @@ services:
       - laravel
 
   app:
-    build: .
+    image: ghcr.io/p8328720-droid/software-engineering:latest
     volumes:
       - .:/var/www
     environment:
