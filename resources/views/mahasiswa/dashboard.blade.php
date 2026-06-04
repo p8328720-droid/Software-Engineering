@@ -13,8 +13,8 @@
     <div class="col-md-3 mb-3">
         <div class="card text-center border-0"><div class="card-body"><i class="fas fa-check-circle fa-3x text-success mb-2"></i><h5>Selesai</h5><h2>{{ $stats['completed_reports'] ?? 0 }}</h2></div></div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card text-center border-0"><div class="card-body"><i class="fas fa-clock fa-3x text-danger mb-2"></i><h5>Menunggu</h5><h2>{{ $stats['pending_reports'] ?? 0 }}</h2></div></div>
+   <div class="col-md-3 mb-3">
+        <div class="card text-center border-0"><div class="card-body"><i class="fas fa-times-circle fa-3x text-danger mb-2"></i><h5>Ditolak</h5><h2>{{ $stats['rejected_reports'] ?? 0 }}</h2></div></div>
     </div>
 </div>
 

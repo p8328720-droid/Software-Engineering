@@ -64,12 +64,12 @@ $data['sla_deadline'] = now()->addHours($slaHours);
 
         $report = Report::create($data);
 
-        ReportStatus::create([
-    'report_id' => $report->id,
-    'user_id'   => Auth::id(),
-    'status'    => 'pending',
-    'description' => 'Laporan baru masuk, menunggu verifikasi'
-]);
+ ReportStatus::create([
+            'report_id' => $report->id,
+            'user_id' => Auth::id(),
+            'status' => 'pending',
+            'description' => 'Laporan berhasil dikirim, menunggu verifikasi'
+        ]);
 
         AuditLog::create([
             'user_id' => Auth::id(),
