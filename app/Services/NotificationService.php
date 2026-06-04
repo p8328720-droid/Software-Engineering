@@ -11,17 +11,25 @@ class NotificationService
     /**
      * Send notification to a single user
      */
-    public static function send($userId, $title, $message, $type = 'info', $reportId = null)
-    {
+public static function send($userId, $title, $message, $type = 'info', $reportId = null)
+{
+    try {
         return Notification::create([
-            'user_id' => $userId,
+            'user_id'   => $userId,
             'report_id' => $reportId,
-            'title' => $title,
-            'message' => $message,
-            'type' => $type,
-            'is_read' => false,
+            'title'     => $title,
+            'message'   => $message,
+            'type'      => $type,
+            'is_read'   => false,
         ]);
+    } catch (\Exception $e) {
+        \Log::error('NotificationService::send failed', [
+            'user_id' => $userId,
+            'error'   => $e->getMessage(),
+        ]);
+        return null;
     }
+}
 
     /**
      * Send notification to all users with specific role
@@ -45,8 +53,17 @@ class NotificationService
         }
         
         if (!empty($notifications)) {
-            return Notification::insert($notifications);
-        }
+    try {
+        return Notification::insert($notifications);
+    } catch (\Exception $e) {
+        \Log::error('NotificationService::sendToRole failed', [
+            'role'    => $role,
+            'error'   => $e->getMessage(),
+            'count'   => count($notifications),
+        ]);
+        return false;
+    }
+}
         
         return true;
     }

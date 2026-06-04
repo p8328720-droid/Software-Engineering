@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Report;
 use App\Models\ReportStatus;
 use App\Models\AuditLog;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -69,7 +70,7 @@ class ReportController extends Controller
             'new_values' => ['status' => $request->status],
             'ip_address' => $request->ip(),
         ]);
-
+ NotificationService::reportStatusUpdated($report, $oldStatus, $request->status);
         return redirect()->route('admin.reports.index')->with('success', 'Status laporan berhasil diperbarui');
     }
 
@@ -87,6 +88,7 @@ class ReportController extends Controller
         ]);
         
         $report->delete();
+        
         return redirect()->route('admin.reports.index')->with('success', 'Laporan berhasil dihapus');
     }
 

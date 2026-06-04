@@ -16,12 +16,9 @@ class AuditController extends Controller
             $query->where('action', 'like', '%' . $request->action . '%');
         }
         
-        if ($request->filled('table') && $request->table != '') {
-            $query->where(function($q) use ($request) {
-                $q->where('table_name', $request->table)
-                  ->orWhere('auditable_type', 'like', '%' . $request->table . '%');
-            });
-        }
+       if ($request->filled('table') && $request->table != '') {
+    $query->where('auditable_type', 'like', '%' . $request->table . '%');
+}
         
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
@@ -51,11 +48,9 @@ class AuditController extends Controller
                     'created_at' => $log->created_at->format('d/m/Y H:i:s'),
                     'user_name' => $log->user ? $log->user->name : 'System',
                     'user_role' => $log->user ? $log->user->role : null,
-                    'action' => $log->action,
-                    'table_name' => $log->table_name,
-                    'auditable_type' => $log->auditable_type,
-                    'record_id' => $log->record_id,
-                    'auditable_id' => $log->auditable_id,
+ 'action'         => $log->action,
+'auditable_type' => $log->auditable_type,
+'auditable_id'   => $log->auditable_id,
                     'old_values' => $log->old_values,
                     'new_values' => $log->new_values,
                     'ip_address' => $log->ip_address,
