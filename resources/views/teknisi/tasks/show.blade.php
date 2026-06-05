@@ -92,10 +92,7 @@
                             <option value="rejected" {{ $report->status=='rejected' ? 'selected' : '' }}>Ditolak</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Catatan</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Tambahkan catatan..."></textarea>
-                    </div>
+                    <input type="hidden" name="description" value="Status diperbarui oleh teknisi">
                     <button type="submit" class="btn btn-primary w-100">Update Status</button>
                 </form>
             </div>
@@ -125,7 +122,10 @@
             </div>
         </div>
         @endif
-
+<x-chat-comments
+    :report="$report"
+    :commentUrl="route('teknisi.reports.comment', $report)"
+    :currentUserId="Auth::id()" />
         <!-- Timeline Card -->
         <div class="card border-0">
             <div class="card-header bg-white">

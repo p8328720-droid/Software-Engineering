@@ -9,6 +9,7 @@ use App\Models\AuditLog;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Comment;
 
 class ReportController extends Controller
 {
@@ -28,7 +29,7 @@ class ReportController extends Controller
 
     public function edit($id)
     {
-        $report = Report::with(['user', 'facility', 'statusHistory.user'])->findOrFail($id);
+        $report = Report::with(['user', 'facility', 'statusHistory.user', 'comments.user'])->findOrFail($id);
         
         $statuses = [
             'pending' => 'Menunggu', 'verified' => 'Diverifikasi',
@@ -100,4 +101,38 @@ class ReportController extends Controller
         
         return redirect()->route('admin.reports.edit', $report->id)->with('success', 'Rating berhasil dihapus');
     }
+    public function addComment(Request $request, Report $report)
+{
+    $request->validate([
+        'comment' => 'required|string|max:500',
+    ]);
+
+    $comment = Comment::create([
+        'report_id' => $report->id,
+        'user_id'   => Auth::id(),
+        'comment'   => $request->comment,
+        'user_type' => 'admin',
+    ]);
+
+    $comment->load('user');
+
+    // Notifikasi ke mahasiswa pemilik laporan
+    $user    = Auth::user();
+    $title   = 'Komentar Baru pada Laporan #' . str_pad($report->id, 5, '0', STR_PAD_LEFT);
+    $message = $user->name . ' (Admin) menambahkan komentar: "' . substr($comment->comment, 0, 100) . '"';
+    NotificationService::send($report->user_id, $title, $message, 'info', $report->id);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Komentar berhasil ditambahkan',
+        'comment' => [
+            'id'        => $comment->id,
+            'comment'   => $comment->comment,
+            'user_name' => $comment->user->name,
+            'user_role' => $comment->user->role,
+            'created_at'=> $comment->created_at->format('d M Y, H:i'),
+            'is_mine'   => true,
+        ]
+    ]);
+}
 }
