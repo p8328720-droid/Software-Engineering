@@ -10,7 +10,44 @@
                 <h5 class="mb-0">Detail Laporan #{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</h5>
             </div>
             <div class="card-body">
-                <!-- ... konten detail laporan (sama seperti sebelumnya) ... -->
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="35%">No. Laporan</th>
+                        <td>#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Judul</th>
+                        <td>{{ $report->title }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fasilitas</th>
+                        <td>{{ $report->facility->name ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lokasi Detail</th>
+                        <td>{{ $report->location_detail }}</td>
+                    </tr>
+                    <tr>
+                        <th>Urgensi</th>
+                        <td>{!! $report->urgency_badge !!}</td>
+                    </tr>
+                    <tr>
+                        <th>Deskripsi</th>
+                        <td>{{ $report->description }}</td>
+                    </tr>
+                    @if($report->image_path)
+                    <tr>
+                        <th>Foto</th>
+                        <td><img src="{{ asset('storage/' . $report->image_path) }}" class="img-fluid rounded" style="max-height:250px;"></td>
+                    </tr>
+                    @endif
+                    @if($report->admin_note)
+                    <tr>
+                        <th>Catatan Admin</th>
+                        <td class="text-danger">{{ $report->admin_note }}</td>
+                    </tr>
+                    @endif
+                </table>
             </div>
         </div>
         
@@ -62,8 +99,13 @@
             </div>
             <div class="card-body text-center">
                 <div class="mb-3">
-                    <i class="fas fa-{{ $report->status == 'pending' ? 'clock' : ($report->status == 'in_progress' ? 'spinner fa-spin' : 'check-circle') }} fa-3x text-{{ $report->status == 'pending' ? 'secondary' : ($report->status == 'in_progress' ? 'warning' : 'success') }}"></i>
-                    <h3 class="mt-2">{{ $report->status == 'pending' ? 'Menunggu' : ($report->status == 'in_progress' ? 'Diproses' : 'Selesai') }}</h3>
+@php
+                        $iconMap = ['pending'=>'clock','in_progress'=>'spinner fa-spin','completed'=>'check-circle','rejected'=>'times-circle','verified'=>'check'];
+                        $colorMap = ['pending'=>'secondary','in_progress'=>'warning','completed'=>'success','rejected'=>'danger','verified'=>'info'];
+                        $labelMap = ['pending'=>'Menunggu','in_progress'=>'Diproses','completed'=>'Selesai','rejected'=>'Ditolak','verified'=>'Diverifikasi'];
+                    @endphp
+                    <i class="fas fa-{{ $iconMap[$report->status] ?? 'clock' }} fa-3x text-{{ $colorMap[$report->status] ?? 'secondary' }}"></i>
+                    <h3 class="mt-2">{{ $labelMap[$report->status] ?? $report->status }}</h3>
                 </div>
                 <hr>
                 <div class="text-start">

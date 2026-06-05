@@ -39,7 +39,10 @@ class FacilityController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        Facility::create($request->all());
+       Facility::create($request->only([
+    'name', 'category', 'location', 'description',
+    'status', 'sla_hours', 'is_active'
+]));
 
         return redirect()->route('admin.facilities')
             ->with('success', 'Fasilitas berhasil ditambahkan');
@@ -65,11 +68,15 @@ class FacilityController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $facility->update($request->all());
+        $facility->update($request->only([
+    'name', 'category', 'location', 'description',
+    'status', 'sla_hours', 'is_active'
+]));
         
         return redirect()->route('admin.facilities')
             ->with('success', 'Fasilitas berhasil diperbarui');
     }
+    
 
     public function destroy($id)
     {

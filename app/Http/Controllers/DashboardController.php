@@ -14,9 +14,9 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
         
-        $stats = [
+$stats = [
             'total_reports' => Report::where('user_id', $userId)->count(),
-            'pending_reports' => Report::where('user_id', $userId)->where('status', 'pending')->count(),
+            'rejected_reports' => Report::where('user_id', $userId)->where('status', 'rejected')->count(),
             'in_progress_reports' => Report::where('user_id', $userId)->where('status', 'in_progress')->count(),
             'completed_reports' => Report::where('user_id', $userId)->where('status', 'completed')->count(),
         ];

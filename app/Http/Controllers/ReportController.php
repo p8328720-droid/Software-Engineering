@@ -40,9 +40,12 @@ class ReportController extends Controller
             'image' => 'nullable|image|max:2048',
         ]);
 
-        $data = $request->all();
-        $data['user_id'] = Auth::id();
-        $data['status'] = 'in_progress';
+$data = $request->only([
+    'title', 'facility_id', 'location_detail', 'urgency', 'description'
+]);
+$data['user_id']    = Auth::id();
+$data['status']     = 'pending';
+$data['sla_deadline'] = now()->addHours($slaHours);
         
         $facility = Facility::find($request->facility_id);
         $baseHours = $facility->sla_hours ?? 48;
@@ -61,11 +64,11 @@ class ReportController extends Controller
 
         $report = Report::create($data);
 
-        ReportStatus::create([
+ ReportStatus::create([
             'report_id' => $report->id,
             'user_id' => Auth::id(),
-            'status' => 'in_progress',
-            'description' => 'Laporan dibuat dan langsung diproses'
+            'status' => 'pending',
+            'description' => 'Laporan berhasil dikirim, menunggu verifikasi'
         ]);
 
         AuditLog::create([
@@ -82,18 +85,25 @@ class ReportController extends Controller
             ->with('success', 'Laporan berhasil dikirim');
     }
 
-    public function show(Report $report)
-    {
-        if ($report->user_id !== Auth::id() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'teknisi') {
-            abort(403);
-        }
-        $report->load('comments.user', 'statusHistory.user', 'facility');
-        return view('mahasiswa.reports.show', compact('report'));
+public function show(Report $report)
+{
+    $user = Auth::user();
+    if ($report->user_id !== $user->id && !in_array($user->role, ['admin', 'teknisi'])) {
+        abort(403);
     }
+    $report->load('comments.user', 'statusHistory.user', 'facility');
 
-    /**
-     * Submit rating for completed report (only by the reporter, once)
-     */
+    $view = match($user->role) {
+        'admin'    => 'admin.reports.show',
+        'teknisi'  => 'teknisi.tasks.show',
+        default    => 'mahasiswa.reports.show',
+    };
+
+    return view($view, compact('report'));
+}
+
+    // Submit rating for completed report (only by the reporter, once)
+ 
     public function rating(Request $request, Report $report)
     {
         // Validasi: hanya pemilik laporan
@@ -269,14 +279,13 @@ class ReportController extends Controller
     }
 
     private function parseReportId($input)
-    {
-        $cleaned = ltrim($input, '#');
-        $cleaned = ltrim($cleaned, '0');
-        if (ctype_digit($cleaned) && !empty($cleaned)) {
-            return (int) $cleaned;
-        }
-        return null;
+{
+    $cleaned = ltrim(trim($input), '#');
+    if (ctype_digit($cleaned) && strlen($cleaned) > 0) {
+        return (int) $cleaned;  // "00001"→1, "00000"→0, "1"→1, semua valid
     }
+    return null;
+}
 
     private function getStatusLabel($status)
     {

@@ -1,59 +1,61 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+SIRUKA SISTEM INFORMASI RUSAK KAMPUS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+SiRUKA atau Sistem Informasi Rusak Kampus merupakan aplikasi berbasis web yang dikembangkan untuk mendukung proses pelaporan dan penanganan kerusakan fasilitas di lingkungan kampus. Sistem ini berfokus pada fasilitas ruang kelas dan laboratorium karena kedua area tersebut memiliki intensitas penggunaan yang tinggi serta berpengaruh langsung terhadap kelancaran kegiatan akademik.
+Pengembangan SiRUKA bertujuan untuk menyediakan sistem pelaporan kerusakan yang lebih terstruktur, terdokumentasi, dan mudah dipantau. Melalui sistem ini, pengguna dapat menyampaikan laporan kerusakan fasilitas, sedangkan teknisi dan administrator dapat memproses laporan, memperbarui status penanganan, serta memantau perkembangan perbaikan hingga laporan dinyatakan selesai.
 
-## About Laravel
+DESKRIPSI PROJECT
+Pada proses manual, pelaporan kerusakan fasilitas kampus umumnya dilakukan melalui komunikasi langsung atau pesan singkat. Mekanisme tersebut memiliki beberapa keterbatasan, seperti laporan yang sulit dilacak, dokumentasi yang kurang rapi, serta minimnya transparansi dalam proses penanganan.
+SiRUKA dirancang sebagai solusi untuk mengatasi permasalahan tersebut dengan menyediakan sistem pelaporan yang terpusat. Setiap laporan kerusakan dapat disimpan dalam sistem, dikategorikan berdasarkan jenis kerusakan, diproses sesuai status penanganan, dan dipantau oleh pihak yang bertanggung jawab.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+CAKUPAN SISTEM
+Cakupan sistem SiRUKA meliputi pelaporan dan penanganan kerusakan fasilitas pada ruang kelas dan laboratorium. Pada ruang kelas, fasilitas yang dapat dilaporkan mencakup AC, kursi, meja, papan tulis, proyektor, lampu, dan pintu. Pada laboratorium, fasilitas yang dapat dilaporkan mencakup komputer, peralatan praktikum, meja laboratorium, AC, dan lampu.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+FITUR UTAMA
+Fitur utama dalam aplikasi SiRUKA adalah pelaporan dan penanganan kerusakan fasilitas kampus. Pengguna dapat membuat laporan kerusakan dengan menyertakan informasi lokasi, jenis fasilitas, deskripsi kerusakan, serta bukti pendukung berupa gambar.
+Sistem ini juga menyediakan fitur otorisasi pengguna berdasarkan peran. Setiap pengguna memiliki hak akses yang berbeda sesuai dengan perannya, yaitu pelapor, teknisi, dan administrator. Pelapor berperan dalam membuat laporan kerusakan, teknisi berperan dalam menangani laporan dan memperbarui status perbaikan, sedangkan administrator berperan dalam mengelola data pengguna, ruangan, fasilitas, prioritas, serta pemantauan laporan.
+Selain itu, SiRUKA menyediakan fitur pengelolaan prioritas dan deadline laporan. Administrator dapat menentukan tingkat prioritas kerusakan berdasarkan kategori tertentu, sehingga laporan dapat diproses sesuai tingkat urgensinya. Sistem juga mendukung pelacakan status laporan secara real time agar pengguna dapat mengetahui perkembangan penanganan laporan secara lebih transparan.
+SiRUKA dilengkapi dengan dashboard statistik yang menampilkan ringkasan data laporan, seperti jumlah laporan berdasarkan status, kategori kerusakan, serta informasi pendukung lainnya. Fitur ini membantu administrator dalam melakukan evaluasi terhadap proses penanganan kerusakan fasilitas kampus.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+TEKNOLOGI YANG DIGUNAKAN
+Project ini dikembangkan menggunakan framework Laravel dengan bahasa pemrograman PHP. Tampilan aplikasi dibangun menggunakan Blade Template, HTML, CSS, dan JavaScript. Untuk pengelolaan data, sistem dapat menggunakan SQLite atau MySQL sesuai dengan kebutuhan pengembangan.
 
-## Learning Laravel
+SOFTWARE PROCESS
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Metode pengembangan perangkat lunak yang digunakan dalam project SiRUKA adalah Agile Development dengan pendekatan Kanban. Pendekatan ini dipilih karena kebutuhan sistem masih dapat berkembang selama proses pengembangan, sehingga diperlukan metode yang fleksibel dan mudah disesuaikan.
+Dengan menggunakan Kanban, proses pengembangan dilakukan secara bertahap melalui pembagian pekerjaan ke dalam beberapa status, seperti To Do, In Progress, dan Done. Setiap fitur atau perbaikan sistem direpresentasikan sebagai task yang dapat dipantau perkembangannya oleh anggota tim.
+Pendekatan Kanban membantu tim dalam mengelola pekerjaan secara lebih transparan, terstruktur, dan adaptif terhadap perubahan kebutuhan. Dengan demikian, pengembangan SiRUKA dapat dilakukan secara berkelanjutan berdasarkan evaluasi dan masukan dari pengguna.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+CARA MENJALANKAN PROJECT
 
-## Laravel Sponsors
+Clone repository project ke perangkat lokal.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+git clone link-repository
 
-### Premium Partners
+Masuk ke folder project.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+cd Software-Engineering
 
-## Contributing
+Install dependency Laravel.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+composer install
 
-## Code of Conduct
+Salin file environment.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+cp .env.example .env
 
-## Security Vulnerabilities
+Generate application key.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+php artisan key:generate
 
-## License
+Jalankan migration database.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+php artisan migrate
+
+Jalankan server Laravel.
+
+php artisan serve
+
+Setelah server berjalan, aplikasi dapat diakses melalui browser dengan alamat berikut.
+
+http://127.0.0.1:8000
+
