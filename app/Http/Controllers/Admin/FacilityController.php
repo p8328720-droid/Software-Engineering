@@ -11,14 +11,14 @@ class FacilityController extends Controller
     public function index()
     {
         $facilities = Facility::orderBy('category')->orderBy('name')->paginate(10);
-        
+
         $stats = [
             'total' => Facility::count(),
             'lab' => Facility::where('category', 'Lab')->count(),
             'kelas' => Facility::where('category', 'Kelas')->count(),
             'perlu_perbaikan' => Facility::where('status', 'perlu_perbaikan')->count(),
         ];
-        
+
         return view('admin.facilities.index', compact('facilities', 'stats'));
     }
 
@@ -39,13 +39,9 @@ class FacilityController extends Controller
             'is_active' => 'boolean',
         ]);
 
-       Facility::create($request->only([
-    'name', 'category', 'location', 'description',
-    'status', 'sla_hours', 'is_active'
-]));
+        Facility::create($request->all());
 
-        return redirect()->route('admin.facilities')
-            ->with('success', 'Fasilitas berhasil ditambahkan');
+        return redirect()->route('admin.facilities')->with('success', 'Fasilitas berhasil ditambahkan');
     }
 
     public function edit($id)
@@ -57,7 +53,7 @@ class FacilityController extends Controller
     public function update(Request $request, $id)
     {
         $facility = Facility::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|in:Lab,Kelas',
@@ -68,27 +64,21 @@ class FacilityController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $facility->update($request->only([
-    'name', 'category', 'location', 'description',
-    'status', 'sla_hours', 'is_active'
-]));
-        
-        return redirect()->route('admin.facilities')
-            ->with('success', 'Fasilitas berhasil diperbarui');
+        $facility->update($request->all());
+
+        return redirect()->route('admin.facilities')->with('success', 'Fasilitas berhasil diperbarui');
     }
 
     public function destroy($id)
     {
         $facility = Facility::findOrFail($id);
-        
+
         if ($facility->reports()->count() > 0) {
-            return redirect()->route('admin.facilities')
-                ->with('error', 'Fasilitas memiliki laporan, tidak dapat dihapus');
+            return redirect()->route('admin.facilities')->with('error', 'Fasilitas memiliki laporan, tidak dapat dihapus');
         }
-        
+
         $facility->delete();
-        
-        return redirect()->route('admin.facilities')
-            ->with('success', 'Fasilitas berhasil dihapus');
+
+        return redirect()->route('admin.facilities')->with('success', 'Fasilitas berhasil dihapus');
     }
 }

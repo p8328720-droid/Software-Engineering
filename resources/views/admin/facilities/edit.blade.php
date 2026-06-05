@@ -1,88 +1,85 @@
-<?php
+@extends('layouts.admin')
 
-namespace App\Http\Controllers\Admin;
+@section('title', 'Edit Fasilitas')
 
-use App\Http\Controllers\Controller;
-use App\Models\Facility;
-use Illuminate\Http\Request;
+@section('admin-content')
+<div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="fas fa-edit me-2 text-orange"></i>Edit Fasilitas</h1>
+    <a href="{{ route('admin.facilities') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+    </a>
+</div>
 
-class FacilityController extends Controller
-{
-    public function index()
-    {
-        $facilities = Facility::orderBy('category')->orderBy('name')->paginate(10);
-        
-        $stats = [
-            'total' => Facility::count(),
-            'lab' => Facility::where('category', 'Lab')->count(),
-            'kelas' => Facility::where('category', 'Kelas')->count(),
-            'perlu_perbaikan' => Facility::where('status', 'perlu_perbaikan')->count(),
-        ];
-        
-        return view('admin.facilities.index', compact('facilities', 'stats'));
-    }
+<div class="card border-0">
+    <div class="card-body">
+        <form action="{{ route('admin.facilities.update', $facility->id) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-    public function create()
-    {
-        return view('admin.facilities.create');
-    }
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nama Fasilitas <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $facility->name) }}" required>
+                    @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kategori <span class="text-danger">*</span></label>
+                    <select name="category" class="form-select @error('category') is-invalid @enderror" required>
+                        <option value="Lab" {{ old('category', $facility->category) == 'Lab' ? 'selected' : '' }}>Lab</option>
+                        <option value="Kelas" {{ old('category', $facility->category) == 'Kelas' ? 'selected' : '' }}>Kelas</option>
+                    </select>
+                    @error('category')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            </div>
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'required|in:Lab,Kelas',
-            'location' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:baik,perlu_perbaikan,rusak',
-            'sla_hours' => 'required|integer|min:1|max:168',
-            'is_active' => 'boolean',
-        ]);
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Lokasi <span class="text-danger">*</span></label>
+                    <input type="text" name="location" class="form-control @error('location') is-invalid @enderror" value="{{ old('location', $facility->location) }}" required>
+                    @error('location')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">SLA (jam) <span class="text-danger">*</span></label>
+                    <input type="number" name="sla_hours" class="form-control @error('sla_hours') is-invalid @enderror" value="{{ old('sla_hours', $facility->sla_hours) }}" min="1" max="168" required>
+                    @error('sla_hours')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            </div>
 
-        Facility::create($request->all());
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                    <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                        <option value="baik" {{ old('status', $facility->status) == 'baik' ? 'selected' : '' }}>Baik</option>
+                        <option value="perlu_perbaikan" {{ old('status', $facility->status) == 'perlu_perbaikan' ? 'selected' : '' }}>Perlu Perbaikan</option>
+                        <option value="rusak" {{ old('status', $facility->status) == 'rusak' ? 'selected' : '' }}>Rusak</option>
+                    </select>
+                    @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status Aktif</label>
+                    <select name="is_active" class="form-select @error('is_active') is-invalid @enderror">
+                        <option value="1" {{ old('is_active', $facility->is_active) == 1 ? 'selected' : '' }}>Aktif</option>
+                        <option value="0" {{ old('is_active', $facility->is_active) == 0 ? 'selected' : '' }}>Nonaktif</option>
+                    </select>
+                    @error('is_active')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            </div>
 
-        return redirect()->route('admin.facilities')
-            ->with('success', 'Fasilitas berhasil ditambahkan');
-    }
+            <div class="mb-3">
+                <label class="form-label">Deskripsi</label>
+                <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="3">{{ old('description', $facility->description) }}</textarea>
+                @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
 
-    public function edit($id)
-    {
-        $facility = Facility::findOrFail($id);
-        return view('admin.facilities.edit', compact('facility'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $facility = Facility::findOrFail($id);
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'required|in:Lab,Kelas',
-            'location' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:baik,perlu_perbaikan,rusak',
-            'sla_hours' => 'required|integer|min:1|max:168',
-            'is_active' => 'boolean',
-        ]);
-
-        $facility->update($request->all());
-        
-        return redirect()->route('admin.facilities')
-            ->with('success', 'Fasilitas berhasil diperbarui');
-    }
-
-    public function destroy($id)
-    {
-        $facility = Facility::findOrFail($id);
-        
-        if ($facility->reports()->count() > 0) {
-            return redirect()->route('admin.facilities')
-                ->with('error', 'Fasilitas memiliki laporan, tidak dapat dihapus');
-        }
-        
-        $facility->delete();
-        
-        return redirect()->route('admin.facilities')
-            ->with('success', 'Fasilitas berhasil dihapus');
-    }
-}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Update
+                </button>
+                <a href="{{ route('admin.facilities') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
