@@ -144,7 +144,6 @@ class DatabaseSeeder extends Seeder
             'image_path' => null,
             'sla_deadline' => Carbon::now()->subHours(5),
             'resolved_at' => Carbon::now()->subHours(3),
-            'admin_note' => 'Kerusakan bukan wewenang teknisi internal, akan diteruskan ke vendor.',
             'created_at' => Carbon::now()->subDays(4),
         ]);
 
