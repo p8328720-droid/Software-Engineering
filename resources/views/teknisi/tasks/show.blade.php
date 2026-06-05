@@ -62,13 +62,13 @@
                 </div>
 
                 @if($report->image_path)
-<div class="mb-3">
-    <label class="fw-bold">Bukti Foto</label>
-    <div>
-        <img src="{{ asset('storage/'.$report->image_path) }}" class="img-thumbnail" style="max-width: 300px; cursor: pointer;" onclick="openImageModal(this.src)">
-    </div>
-</div>
-@endif
+                <div class="mb-3">
+                    <label class="fw-bold">Bukti Foto</label>
+                    <div>
+                        <img src="{{ asset('storage/'.$report->image_path) }}" class="img-thumbnail" style="max-width:300px; cursor:pointer" onclick="openImageModal(this.src)">
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>

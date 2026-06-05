@@ -76,7 +76,6 @@ class FacilityController extends Controller
         return redirect()->route('admin.facilities')
             ->with('success', 'Fasilitas berhasil diperbarui');
     }
-    
 
     public function destroy($id)
     {
