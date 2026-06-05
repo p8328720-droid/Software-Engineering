@@ -5,10 +5,15 @@ chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache 2>/dev/null
 chown -R www-data:www-data /var/www/app/storage /var/www/app/bootstrap/cache 2>/dev/null
 ln -sfn /var/www/app/storage/app/public /var/www/app/public/storage
 
-ENV_FILE="/var/www/app/.env"
-if [ ! -f "$ENV_FILE" ]; then cp /var/www/app/.env.example "$ENV_FILE"; fi
-if ! grep -q "APP_KEY=" "$ENV_FILE" || [ -z "$(grep "APP_KEY=" "$ENV_FILE" | cut -d= -f2)" ]; then
-    php artisan key:generate --force --no-ansi
+KEY_FILE="/var/www/app/storage/app_key.txt"
+
+if [ -z "$APP_KEY" ]; then
+    if [ ! -f "$KEY_FILE" ]; then
+        echo "APP_KEY kosong & file belum ada. Generate key permanen pertama kali..."
+        php artisan key:generate --show --no-ansi > "$KEY_FILE"
+    fi
+    echo "Memuat APP_KEY yang tersimpan dari volume..."
+    export APP_KEY=$(cat "$KEY_FILE")
 fi
 
 echo "Menunggu koneksi database..."
