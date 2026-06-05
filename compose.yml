@@ -12,8 +12,6 @@ services:
 
   app:
     image: ghcr.io/p8328720-droid/software-engineering:latest
-    volumes:
-      - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     environment:
       - LOG_CHANNEL=stack
       - LOG_LEVEL=debug
