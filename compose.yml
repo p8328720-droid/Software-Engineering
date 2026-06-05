@@ -29,6 +29,7 @@ services:
       - db
     volumes:
       - asset_data:/var/www/app/public
+      - storage_data:/var/www/app/storage
     networks:
       - laravel
 
@@ -39,6 +40,7 @@ services:
     volumes:
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
       - asset_data:/var/www/app/public:ro
+      - storage_data:/var/www/app/storage
     depends_on:
       - app
     networks:
@@ -51,6 +53,7 @@ services:
 
 volumes:
   asset_data:
+  storage_data:
 networks:
   laravel:
     driver: bridge
