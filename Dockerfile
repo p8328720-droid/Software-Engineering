@@ -13,10 +13,12 @@ RUN pecl install redis && docker-php-ext-enable redis
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+USER www-data
+
 WORKDIR /var/www
 
-# Copy everything and install dependencies cleanly
-COPY . .
+COPY --chown=www-data:www-data . .
+
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Set up our startup script
