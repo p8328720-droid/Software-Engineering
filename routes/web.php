@@ -106,8 +106,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports/{id}/edit', [AdminReportController::class, 'edit'])->name('reports.edit');
         Route::put('/reports/{id}', [AdminReportController::class, 'update'])->name('reports.update');
         Route::delete('/reports/{id}', [AdminReportController::class, 'destroy'])->name('reports.destroy');
-        Route::delete('/reports/{id}/rating', [AdminReportController::class, 'deleteRating'])->name('reports.delete-rating');
-        
+Route::delete('/reports/{id}/rating', [AdminReportController::class, 'deleteRating'])->name('reports.delete-rating');
+Route::post('/reports/{report}/comment', [AdminReportController::class, 'addComment'])->name('reports.comment'); // ← TAMBAHKAN
         // Audit Trail
        Route::get('/audit', [AuditController::class, 'index'])->name('audit');
     Route::get('/audit/{id}/detail', [AuditController::class, 'detail'])->name('audit.detail');

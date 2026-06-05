@@ -89,13 +89,13 @@
                             <option value="rejected" {{ $report->status == 'rejected' ? 'selected' : '' }}>Ditolak</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Catatan Admin</label>
-                        <textarea name="admin_note" class="form-control" rows="3">{{ $report->admin_note }}</textarea>
-                    </div>
                     <button type="submit" class="btn btn-primary w-100">
                         <i class="fas fa-save me-1"></i> Update Status
                     </button>
+                    <x-chat-comments
+    :report="$report"
+    :commentUrl="route('admin.reports.comment', $report)"
+    :currentUserId="Auth::id()" />
                 </form>
             </div>
         </div>
