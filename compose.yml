@@ -17,7 +17,7 @@ services:
     environment:
       - DB_HOST=db
       - DB_DATABASE=laravel
-      - DB_USERNAME=username
+      - DB_USERNAME=user
       - DB_PASSWORD=password
       - SESSION_DRIVER=redis
       - QUEUE_CONNECTION=redis
