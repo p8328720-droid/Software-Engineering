@@ -5,12 +5,19 @@ chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache 2>/dev/null
 
 ln -sfn /var/www/storage/app/public /var/www/public/storage
 
-if [ ! -f .env ]; then
-    cp .env.example .env
-fi
+# Jalur ke file .env di dalam container
+ENV_FILE="/var/www/.env"
 
-if ! grep -q "APP_KEY=base64" .env; then
-    php artisan key:generate
+# Cek apakah file .env belum ada, atau ada tapi isinya kosong / tidak punya APP_KEY
+if [ ! -f "$ENV_FILE" ] || ! grep -q "APP_KEY=" "$ENV_FILE"; then
+    echo "Membuat file .env khusus untuk APP_KEY..."
+    
+    # Generate key baru secara langsung
+    GENERATED_KEY=$(php artisan key:generate --show --no-ansi)
+    
+    # Tulis atau timpa langsung ke file .env khusus APP_KEY
+    echo "APP_KEY=$GENERATED_KEY" > "$ENV_FILE"
+    echo "APP_KEY berhasil disimpan secara permanen di .env!"
 fi
 
 echo "Menunggu transisi final database..."

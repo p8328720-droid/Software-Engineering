@@ -2,9 +2,11 @@ services:
   db:
     image: mariadb:lts-noble
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_PORT: 3306
+      MARIADB_USER: user
+      MARIADB_PASSWORD: password
+      MARIADB_DATABASE: laravel
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_PORT: 3306
     networks:
       - laravel
 
@@ -16,8 +18,9 @@ services:
     environment:
       - DB_HOST=db
       - DB_DATABASE=laravel
-      - DB_USERNAME=root
+      - DB_USERNAME=username
       - DB_PASSWORD=password
+      - SESSION_DRIVER=redis
     depends_on:
       - db
     networks:
