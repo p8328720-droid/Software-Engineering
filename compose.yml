@@ -13,7 +13,6 @@ services:
   app:
     image: ghcr.io/p8328720-droid/software-engineering:latest
     volumes:
-      - .:/var/www
       - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     environment:
       - DB_HOST=db
@@ -21,6 +20,10 @@ services:
       - DB_USERNAME=username
       - DB_PASSWORD=password
       - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - CACHE_STORE=redis
+      - REDIS_CLIENT=phpredis
+      - REDIS_HOST=redis
     depends_on:
       - db
     networks:
