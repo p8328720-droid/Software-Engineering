@@ -64,8 +64,8 @@ class DatabaseSeeder extends Seeder
         // Ambil semua fasilitas yang sudah dibuat
         $lab1 = Facility::where('name', 'Lab Komputer')->first();
         $lab2 = Facility::where('name', 'Lab Jaringan')->first();
-        $kelas1 = Facility::where('name', 'Kelas A 101')->first();
-        $kelas2 = Facility::where('name', 'Kelas B 201')->first();
+        $kelas1 = Facility::where('name', 'Kelas Regular')->first();
+        $kelas2 = Facility::where('name', 'Kelas B Super')->first();
         $auditorium = Facility::where('name', 'Auditorium')->first();
 
         // ========== 3. REPORTS (CONTOH LAPORAN) ==========
