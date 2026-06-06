@@ -1,37 +1,75 @@
-SiRUKA — Sistem Informasi Rusak Kampus
+# SiRUKA
+Sistem Informasi Rusak Kampus
 
 Aplikasi web untuk pelaporan dan penanganan kerusakan fasilitas kampus
 (ruang kelas dan laboratorium). Menggantikan proses manual dengan sistem
 terpusat yang terstruktur, terdokumentasi, dan mudah dipantau.
 
-Fitur Utama
 
-Pelaporan kerusakan dengan lokasi, jenis fasilitas, deskripsi, dan foto bukti
-Pelacakan status laporan secara real-time
-Manajemen prioritas dan deadline penanganan
-Otorisasi berbasis peran: Pelapor, Teknisi, dan Administrator
-Dashboard statistik laporan berdasarkan status dan kategori
+## Fitur Utama
 
-Peran Pengguna
+Pelaporan kerusakan
+Sertakan lokasi, jenis fasilitas, deskripsi, dan foto bukti
 
-Pelapor: Membuat dan memantau laporan kerusakan
-Teknisi: Menangani laporan dan memperbarui status perbaikan
-Administrator Mengelola pengguna, ruangan, fasilitas, dan prioritas
+Pelacakan status real-time
+Status laporan diperbarui langsung oleh teknisi
 
-Tech Stack
+Manajemen prioritas dan deadline
+Admin mengatur tingkat urgensi setiap laporan
 
-Backend   Laravel (PHP)
-Frontend  Blade Template, HTML, CSS, JavaScript
-Database  MySQL atau SQLite
+Otorisasi berbasis peran
+Hak akses berbeda untuk Pelapor, Teknisi, dan Administrator
 
-Cara Menjalankan
+Dashboard statistik
+Ringkasan laporan berdasarkan status dan kategori
 
-git clone <link-repository>
-cd Software-Engineering
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan serve
+
+## Peran Pengguna
+
+Pelapor
+Membuat dan memantau laporan kerusakan
+
+Teknisi
+Menangani laporan dan memperbarui status perbaikan
+
+Administrator
+Mengelola pengguna, ruangan, fasilitas, dan prioritas
+
+
+## Tech Stack
+
+Backend
+Laravel (PHP)
+
+Frontend
+Blade Template, HTML, CSS, JavaScript
+
+Database
+MySQL untuk production, SQLite untuk development
+
+
+## Cara Menjalankan
+
+1. Clone repository
+   git clone <link-repository>
+
+2. Masuk ke folder project
+   cd Software-Engineering
+
+3. Install dependency
+   composer install
+
+4. Salin file environment
+   cp .env.example .env
+
+5. Generate application key
+   php artisan key:generate
+
+6. Jalankan migration
+   php artisan migrate
+
+7. Jalankan server
+   php artisan serve
+
 
 Akses aplikasi di http://127.0.0.1:8000
