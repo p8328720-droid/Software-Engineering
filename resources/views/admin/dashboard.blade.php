@@ -158,7 +158,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                 <h5 class="mb-0"><i class="fas fa-list-alt me-2 text-orange"></i>Laporan Terbaru</h5>
-                <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+                <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-primary">Lihat Semua</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -208,7 +208,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                 <h5 class="mb-0"><i class="fas fa-users me-2 text-orange"></i>User Terbaru</h5>
-                <a href="{{ route('admin.users') }}" class="btn btn-sm btn-outline-primary">Kelola User</a>
+                <a href="{{ route('admin.users') }}" class="btn btn-sm btn-primary">Kelola User</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
