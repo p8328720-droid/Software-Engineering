@@ -8,36 +8,36 @@
 </div>
 
 <!-- Stats Cards -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card border-0">
-            <div class="card-body text-center">
-                <h3 class="text-orange">{{ $stats['total'] ?? 0 }}</h3>
-                <small>Total Laporan</small>
+<div class="row mb-4 g-3">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center stats-card-body">
+                <div class="stats-number text-orange">{{ number_format($stats['total'] ?? 0) }}</div>
+                <div class="stats-label">Total Laporan</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card border-0">
-            <div class="card-body text-center">
-                <h3 class="text-warning">{{ $stats['pending'] ?? 0 }}</h3>
-                <small>Pending</small>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center stats-card-body">
+                <div class="stats-number text-warning">{{ number_format($stats['pending'] ?? 0) }}</div>
+                <div class="stats-label">Pending</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card border-0">
-            <div class="card-body text-center">
-                <h3 class="text-info">{{ $stats['in_progress'] ?? 0 }}</h3>
-                <small>Diproses</small>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center stats-card-body">
+                <div class="stats-number text-info">{{ number_format($stats['in_progress'] ?? 0) }}</div>
+                <div class="stats-label">Diproses</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card border-0">
-            <div class="card-body text-center">
-                <h3 class="text-success">{{ $stats['completed'] ?? 0 }}</h3>
-                <small>Selesai</small>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center stats-card-body">
+                <div class="stats-number text-success">{{ number_format($stats['completed'] ?? 0) }}</div>
+                <div class="stats-label">Selesai</div>
             </div>
         </div>
     </div>
@@ -136,3 +136,19 @@ function deleteReport(id) {
 }
 </script>
 @endpush
+
+@once
+@push('styles')
+<style>
+    .stats-card-body { padding: 1.1rem .75rem; }
+    .stats-number    { font-size: 1.75rem; font-weight: 700; line-height: 1; margin-bottom: .25rem; }
+    .stats-label     { font-size: .78rem; font-weight: 500; color: #6c757d; }
+ 
+    @media (max-width: 767.98px) {
+        .stats-card-body { padding: .85rem .6rem; }
+        .stats-number    { font-size: 1.4rem; }
+        .stats-label     { font-size: .7rem; }
+    }
+</style>
+@endpush
+@endonce

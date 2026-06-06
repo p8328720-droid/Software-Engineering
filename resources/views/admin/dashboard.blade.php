@@ -2,6 +2,14 @@
 
 @section('title', 'Admin Dashboard')
 
+@php
+    $totalCompleted = $stats['completed_reports'] ?? 0;
+    $slaViolations  = $stats['sla_violations'] ?? 0;
+    $compliance     = $totalCompleted > 0
+        ? round((($totalCompleted - $slaViolations) / $totalCompleted) * 100)
+        : 100;
+@endphp
+
 @section('admin-content')
 <div class="d-flex justify-content-between flex-wrap align-items-center pt-3 pb-2 mb-4 border-bottom">
     <h1 class="h2">Dashboard Admin</h1>
@@ -10,81 +18,77 @@
     </div>
 </div>
 
-<!-- Row 1: Stats Cards (4 kolom sama besar) -->
-<div class="row mb-4">
-    <div class="col-md-3">
+{{-- Row 1: Laporan --}}
+<div class="row mb-3 g-3">
+    <div class="col-6 col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h3 class="text-warning mb-0">{{ number_format($stats['pending_reports'] ?? 0) }}</h3>
-                <small class="text-muted">Pending</small>
+            <div class="card-body stats-card-body">
+                <div class="stats-number text-warning">{{ number_format($stats['pending_reports'] ?? 0) }}</div>
+                <div class="stats-label">Pending</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h3 class="text-info mb-0">{{ number_format($stats['in_progress_reports'] ?? 0) }}</h3>
-                <small class="text-muted">Diproses</small>
+            <div class="card-body stats-card-body">
+                <div class="stats-number text-info">{{ number_format($stats['in_progress_reports'] ?? 0) }}</div>
+                <div class="stats-label">Diproses</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h3 class="text-success mb-0">{{ number_format($stats['completed_reports'] ?? 0) }}</h3>
-                <small class="text-muted">Selesai</small>
+            <div class="card-body stats-card-body">
+                <div class="stats-number text-success">{{ number_format($stats['completed_reports'] ?? 0) }}</div>
+                <div class="stats-label">Selesai</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h3 class="text-danger mb-0">{{ number_format($stats['rejected_reports'] ?? 0) }}</h3>
-                <small class="text-muted">Ditolak</small>
+            <div class="card-body stats-card-body">
+                <div class="stats-number text-danger">{{ number_format($stats['rejected_reports'] ?? 0) }}</div>
+                <div class="stats-label">Ditolak</div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Row 2: Stats Cards (4 kolom sama besar) -->
-<div class="row mb-4">
-    <div class="col-md-3">
+ 
+{{-- Row 2: User / Fasilitas / SLA --}}
+<div class="row mb-4 g-3">
+    <div class="col-6 col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h3 class="text-primary mb-0">{{ number_format($stats['total_users'] ?? 0) }}</h3>
-                <small class="text-muted">Total User</small>
-                <div class="small text-muted mt-1">
-                    Mhs: {{ number_format($stats['total_students'] ?? 0) }} | Tek: {{ number_format($stats['total_technicians'] ?? 0) }}
+            <div class="card-body stats-card-body">
+                <div class="stats-number text-primary">{{ number_format($stats['total_users'] ?? 0) }}</div>
+                <div class="stats-label">Total User</div>
+                <div class="stats-sublabel">
+                    Mhs: {{ number_format($stats['total_students'] ?? 0) }} &nbsp;|&nbsp;
+                    Tek: {{ number_format($stats['total_technicians'] ?? 0) }}
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h3 class="text-success mb-0">{{ number_format($stats['total_facilities'] ?? 0) }}</h3>
-                <small class="text-muted">Total Fasilitas</small>
+            <div class="card-body stats-card-body">
+                <div class="stats-number text-success">{{ number_format($stats['total_facilities'] ?? 0) }}</div>
+                <div class="stats-label">Total Fasilitas</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h3 class="text-danger mb-0">{{ number_format($stats['sla_violations'] ?? 0) }}</h3>
-                <small class="text-muted">SLA Violation</small>
+            <div class="card-body stats-card-body">
+                <div class="stats-number text-danger">{{ number_format($stats['sla_violations'] ?? 0) }}</div>
+                <div class="stats-label">SLA Violation</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                @php
-                    $totalCompleted = $stats['completed_reports'] ?? 0;
-                    $slaViolations = $stats['sla_violations'] ?? 0;
-                    $compliance = $totalCompleted > 0 ? round((($totalCompleted - $slaViolations) / $totalCompleted) * 100) : 100;
-                @endphp
-                <h3 class="text-info mb-0">{{ $compliance }}<small>%</small></h3>
-                <small class="text-muted">Kepatuhan SLA</small>
+            <div class="card-body stats-card-body">
+                <div class="stats-number text-info">{{ $compliance }}<small style="font-size:.55em">%</small></div>
+                <div class="stats-label">Kepatuhan SLA</div>
             </div>
         </div>
     </div>
@@ -268,6 +272,17 @@
 .card-header {
     border-bottom: 1px solid #e9ecef;
 }
+.stats-card-body  { padding: 1.1rem .75rem; }
+    .stats-number     { font-size: 1.75rem; font-weight: 700; line-height: 1; margin-bottom: .25rem; }
+    .stats-label      { font-size: .78rem; font-weight: 500; color: #6c757d; }
+    .stats-sublabel   { font-size: .68rem; color: #adb5bd; margin-top: .2rem; }
+ 
+    @media (max-width: 767.98px) {
+        .stats-card-body { padding: .85rem .6rem; }
+        .stats-number    { font-size: 1.4rem; }
+        .stats-label     { font-size: .7rem; }
+        .stats-sublabel  { font-size: .62rem; }
+    }
 </style>
 @endpush
 
