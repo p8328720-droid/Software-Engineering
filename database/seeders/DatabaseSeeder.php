@@ -48,13 +48,20 @@ class DatabaseSeeder extends Seeder
         // ========== 2. FACILITIES (LAB & KELAS) ==========
         $facilities = [
             // LAB
-            ['name' => 'Lab Komputer', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 2', 'status' => 'baik', 'sla_hours' => 48, 'is_active' => true],
-            ['name' => 'Lab Jaringan', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 3', 'status' => 'baik', 'sla_hours' => 48, 'is_active' => true],
-            ['name' => 'Lab Multimedia', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 1', 'status' => 'baik', 'sla_hours' => 48, 'is_active' => true],
+            ['name' => 'Komputer', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 2', 'status' => 'baik', 'sla_hours' => 24, 'is_active' => true],
+            ['name' => 'Monitor', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 2', 'status' => 'baik', 'sla_hours' => 24, 'is_active' => true],
+            ['name' => 'Keyboard', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 2', 'status' => 'baik', 'sla_hours' => 24, 'is_active' => true],
+            ['name' => 'Mouse', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 2', 'status' => 'baik', 'sla_hours' => 24, 'is_active' => true],
+            ['name' => 'Proyektor Lab', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 3', 'status' => 'baik', 'sla_hours' => 24, 'is_active' => true],
+            ['name' => 'Koneksi Internet', 'category' => 'Lab', 'location' => 'Gedung Utama Lt 3', 'status' => 'baik', 'sla_hours' => 12, 'is_active' => true],
+
             // KELAS
-            ['name' => 'Kelas Regular', 'category' => 'Kelas', 'location' => 'Gedung A Lantai 1', 'status' => 'baik', 'sla_hours' => 48, 'is_active' => true],
-            ['name' => 'Kelas B Super', 'category' => 'Kelas', 'location' => 'Gedung B Lantai 2', 'status' => 'baik', 'sla_hours' => 48, 'is_active' => true],
-            ['name' => 'Auditorium', 'category' => 'Kelas', 'location' => 'Gedung C Lt 1', 'status' => 'perlu_perbaikan', 'sla_hours' => 36, 'is_active' => true],
+            ['name' => 'Proyektor', 'category' => 'Kelas', 'location' => 'Gedung A Lt 1', 'status' => 'baik', 'sla_hours' => 24, 'is_active' => true],
+            ['name' => 'AC', 'category' => 'Kelas', 'location' => 'Gedung A Lt 1', 'status' => 'baik', 'sla_hours' => 24, 'is_active' => true],
+            ['name' => 'Kursi Mahasiswa', 'category' => 'Kelas', 'location' => 'Gedung B Lt 2', 'status' => 'baik', 'sla_hours' => 48, 'is_active' => true],
+            ['name' => 'Meja Mahasiswa', 'category' => 'Kelas', 'location' => 'Gedung B Lt 2', 'status' => 'baik', 'sla_hours' => 48, 'is_active' => true],
+            ['name' => 'Whiteboard', 'category' => 'Kelas', 'location' => 'Gedung B Lt 2', 'status' => 'baik', 'sla_hours' => 48, 'is_active' => true],
+            ['name' => 'Speaker Kelas', 'category' => 'Kelas', 'location' => 'Gedung C Lt 1', 'status' => 'perlu_perbaikan', 'sla_hours' => 24, 'is_active' => true],
         ];
 
         foreach ($facilities as $facility) {
@@ -62,20 +69,20 @@ class DatabaseSeeder extends Seeder
         }
 
         // Ambil semua fasilitas yang sudah dibuat
-        $lab1 = Facility::where('name', 'Lab Komputer')->first();
-        $lab2 = Facility::where('name', 'Lab Jaringan')->first();
-        $kelas1 = Facility::where('name', 'Kelas Regular')->first();
-        $kelas2 = Facility::where('name', 'Kelas B Super')->first();
-        $auditorium = Facility::where('name', 'Auditorium')->first();
+        $komputer = Facility::where('name', 'Komputer')->first();
+        $proyektor = Facility::where('name', 'Proyektor')->first();
+        $ac = Facility::where('name', 'AC')->first();
+        $kursi = Facility::where('name', 'Kursi Mahasiswa')->first();
+        $whiteboard = Facility::where('name', 'Whiteboard')->first();
 
         // ========== 3. REPORTS (CONTOH LAPORAN) ==========
-        // Laporan 1 - Pending (belum diproses)
+        // Laporan 1 - Pending
         $report1 = Report::create([
             'user_id' => $mahasiswa->id,
-            'facility_id' => $lab1->id,
-            'title' => 'AC Lab Komputer Tidak Dingin',
-            'description' => 'AC di Lab Komputer tidak mengeluarkan udara dingin, hanya angin biasa. Ruangan menjadi panas dan tidak nyaman untuk praktikum.',
-            'location_detail' => 'Gedung Utama Lt 2, Lab Komputer (dekat jendela)',
+            'facility_id' => $ac->id,
+            'title' => 'AC Kelas Tidak Dingin',
+            'description' => 'AC tidak mengeluarkan udara dingin sehingga ruangan menjadi panas dan tidak nyaman untuk perkuliahan.',
+            'location_detail' => 'Gedung A Lt 1, Ruang A101',
             'urgency' => 'high',
             'status' => 'pending',
             'image_path' => null,
@@ -83,63 +90,62 @@ class DatabaseSeeder extends Seeder
             'created_at' => Carbon::now()->subDays(2),
         ]);
 
-        // Laporan 2 - In Progress (sedang diproses)
+        // Laporan 2 - In Progress
         $report2 = Report::create([
             'user_id' => $mahasiswa->id,
-            'facility_id' => $kelas1->id,
-            'title' => 'Proyektor Kelas A 101 Mati Total',
-            'description' => 'Proyektor tidak bisa dinyalakan, sudah dicoba dengan remote dan tombol manual tetap tidak hidup.',
-            'location_detail' => 'Gedung A Lantai 1, Ruang 101',
+            'facility_id' => $proyektor->id,
+            'title' => 'Proyektor Tidak Bisa Menyala',
+            'description' => 'Proyektor tidak dapat dinyalakan meskipun kabel listrik sudah terpasang dengan benar.',
+            'location_detail' => 'Gedung B Lt 2, Ruang B201',
             'urgency' => 'medium',
             'status' => 'in_progress',
             'image_path' => null,
             'sla_deadline' => Carbon::now()->addHours(12),
-            'resolved_at' => null,
-            'created_at' => Carbon::now()->subDays(1),
+            'created_at' => Carbon::now()->subDay(),
         ]);
 
-        // Laporan 3 - Completed (selesai, sudah diberi rating)
+        // Laporan 3 - Completed
         $report3 = Report::create([
             'user_id' => $mahasiswa->id,
-            'facility_id' => $lab2->id,
-            'title' => 'Komputer Lab Jaringan Rusak',
-            'description' => '3 unit komputer tidak bisa booting, layar biru terus setelah dinyalakan.',
-            'location_detail' => 'Gedung Utama Lt 3, Lab Jaringan (PC nomor 5,7,9)',
+            'facility_id' => $komputer->id,
+            'title' => 'Komputer Lab Tidak Bisa Booting',
+            'description' => 'Beberapa komputer di laboratorium berhenti pada layar boot dan tidak dapat masuk ke sistem.',
+            'location_detail' => 'Lab Komputer, PC Nomor 5, 7, dan 9',
             'urgency' => 'high',
             'status' => 'completed',
             'image_path' => null,
             'sla_deadline' => Carbon::now()->subHours(2),
             'resolved_at' => Carbon::now()->subDay(),
             'rating' => 5,
-            'rating_comment' => 'Terima kasih, perbaikan cepat dan memuaskan!',
+            'rating_comment' => 'Perbaikan cepat dan semua komputer sudah dapat digunakan.',
             'created_at' => Carbon::now()->subDays(3),
         ]);
 
-        // Laporan 4 - Completed (selesai, rating rendah)
+        // Laporan 4 - Completed
         $report4 = Report::create([
             'user_id' => $mahasiswa->id,
-            'facility_id' => $kelas2->id,
-            'title' => 'Lampu Kelas B 201 Berkedip',
-            'description' => 'Lampu neon di kelas berkedip-kedip, mengganggu proses belajar mengajar.',
-            'location_detail' => 'Gedung B Lantai 2, Ruang 201',
+            'facility_id' => $kursi->id,
+            'title' => 'Kursi Mahasiswa Rusak',
+            'description' => 'Sandaran kursi patah sehingga tidak dapat digunakan dengan nyaman.',
+            'location_detail' => 'Gedung B Lt 2, Ruang B202',
             'urgency' => 'low',
             'status' => 'completed',
             'image_path' => null,
             'sla_deadline' => Carbon::now()->subDays(1),
             'resolved_at' => Carbon::now()->subDays(1),
             'rating' => 3,
-            'rating_comment' => 'Perbaikan agak lambat, tapi sekarang sudah normal.',
+            'rating_comment' => 'Sudah diganti, namun cukup lama menunggu prosesnya.',
             'created_at' => Carbon::now()->subDays(5),
         ]);
 
-        // Laporan 5 - Rejected (ditolak)
+        // Laporan 5 - Rejected
         $report5 = Report::create([
             'user_id' => $mahasiswa->id,
-            'facility_id' => $auditorium->id,
-            'title' => 'AC Auditorium Bocor',
-            'description' => 'AC mengeluarkan air dan menetes ke lantai, sudah dilaporkan sebelumnya tapi belum ditangani.',
-            'location_detail' => 'Gedung C Lt 1, Auditorium (panggung sebelah kiri)',
-            'urgency' => 'medium',
+            'facility_id' => $whiteboard->id,
+            'title' => 'Whiteboard Sulit Dihapus',
+            'description' => 'Bekas spidol permanen masih terlihat setelah dibersihkan.',
+            'location_detail' => 'Gedung A Lt 1, Ruang A102',
+            'urgency' => 'low',
             'status' => 'rejected',
             'image_path' => null,
             'sla_deadline' => Carbon::now()->subHours(5),
