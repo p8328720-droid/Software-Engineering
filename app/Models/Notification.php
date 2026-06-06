@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
     protected $fillable = [
-        'user_id', 'report_id', 'title', 'message', 'type', 'is_read', 'read_at'
+        'user_id', 'report_id', 'title', 'message', 'type', 'is_read', 'read_at',
     ];
 
     protected $casts = [
@@ -42,7 +42,7 @@ class Notification extends Model
 
     public function getIconAttribute()
     {
-        return match($this->type) {
+        return match ($this->type) {
             'success' => 'fa-check-circle',
             'warning' => 'fa-exclamation-triangle',
             'danger' => 'fa-times-circle',
@@ -52,7 +52,7 @@ class Notification extends Model
 
     public function getBadgeClassAttribute()
     {
-        return match($this->type) {
+        return match ($this->type) {
             'success' => 'bg-success',
             'warning' => 'bg-warning',
             'danger' => 'bg-danger',

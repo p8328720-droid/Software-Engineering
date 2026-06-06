@@ -3,33 +3,34 @@
 namespace App\Services;
 
 use App\Models\Notification;
-use App\Models\User;
 use App\Models\Report;
+use App\Models\User;
 
 class NotificationService
 {
     /**
      * Send notification to a single user
      */
-public static function send($userId, $title, $message, $type = 'info', $reportId = null)
-{
-    try {
-        return Notification::create([
-            'user_id'   => $userId,
-            'report_id' => $reportId,
-            'title'     => $title,
-            'message'   => $message,
-            'type'      => $type,
-            'is_read'   => false,
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('NotificationService::send failed', [
-            'user_id' => $userId,
-            'error'   => $e->getMessage(),
-        ]);
-        return null;
+    public static function send($userId, $title, $message, $type = 'info', $reportId = null)
+    {
+        try {
+            return Notification::create([
+                'user_id' => $userId,
+                'report_id' => $reportId,
+                'title' => $title,
+                'message' => $message,
+                'type' => $type,
+                'is_read' => false,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('NotificationService::send failed', [
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
-}
 
     /**
      * Send notification to all users with specific role
@@ -38,7 +39,7 @@ public static function send($userId, $title, $message, $type = 'info', $reportId
     {
         $users = User::where('role', $role)->get();
         $notifications = [];
-        
+
         foreach ($users as $user) {
             $notifications[] = [
                 'user_id' => $user->id,
@@ -51,20 +52,21 @@ public static function send($userId, $title, $message, $type = 'info', $reportId
                 'updated_at' => now(),
             ];
         }
-        
-        if (!empty($notifications)) {
-    try {
-        return Notification::insert($notifications);
-    } catch (\Exception $e) {
-        \Log::error('NotificationService::sendToRole failed', [
-            'role'    => $role,
-            'error'   => $e->getMessage(),
-            'count'   => count($notifications),
-        ]);
-        return false;
-    }
-}
-        
+
+        if (! empty($notifications)) {
+            try {
+                return Notification::insert($notifications);
+            } catch (\Exception $e) {
+                \Log::error('NotificationService::sendToRole failed', [
+                    'role' => $role,
+                    'error' => $e->getMessage(),
+                    'count' => count($notifications),
+                ]);
+
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -73,9 +75,9 @@ public static function send($userId, $title, $message, $type = 'info', $reportId
      */
     public static function newReportCreated(Report $report)
     {
-        $title = 'Laporan Baru #' . str_pad($report->id, 5, '0', STR_PAD_LEFT);
-        $message = 'Laporan baru dari ' . $report->user->name . ' tentang "' . $report->title . '"';
-        
+        $title = 'Laporan Baru #'.str_pad($report->id, 5, '0', STR_PAD_LEFT);
+        $message = 'Laporan baru dari '.$report->user->name.' tentang "'.$report->title.'"';
+
         return self::sendToRole('teknisi', $title, $message, 'info', $report->id);
     }
 
@@ -89,19 +91,19 @@ public static function send($userId, $title, $message, $type = 'info', $reportId
             'verified' => 'Diverifikasi',
             'in_progress' => 'Diproses',
             'completed' => 'Selesai',
-            'rejected' => 'Ditolak'
+            'rejected' => 'Ditolak',
         ];
-        
-        $title = 'Update Status Laporan #' . str_pad($report->id, 5, '0', STR_PAD_LEFT);
-        $message = 'Status laporan Anda berubah dari "' . ($statusLabels[$oldStatus] ?? $oldStatus) . '" menjadi "' . ($statusLabels[$newStatus] ?? $newStatus) . '"';
-        
-        $type = match($newStatus) {
+
+        $title = 'Update Status Laporan #'.str_pad($report->id, 5, '0', STR_PAD_LEFT);
+        $message = 'Status laporan Anda berubah dari "'.($statusLabels[$oldStatus] ?? $oldStatus).'" menjadi "'.($statusLabels[$newStatus] ?? $newStatus).'"';
+
+        $type = match ($newStatus) {
             'completed' => 'success',
             'rejected' => 'danger',
             'in_progress' => 'warning',
             default => 'info',
         };
-        
+
         return self::send($report->user_id, $title, $message, $type, $report->id);
     }
 }

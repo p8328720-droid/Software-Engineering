@@ -15,7 +15,7 @@ return new class extends Migration
             $table->text('comment');
             $table->enum('user_type', ['mahasiswa', 'teknisi', 'admin'])->nullable();
             $table->timestamps();
-            
+
             $table->index('report_id');
             $table->index('user_id');
         });

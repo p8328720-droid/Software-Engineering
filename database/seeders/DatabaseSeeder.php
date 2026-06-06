@@ -2,15 +2,15 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
+use App\Models\Comment;
 use App\Models\Facility;
+use App\Models\Notification;
 use App\Models\Report;
 use App\Models\ReportStatus;
-use App\Models\Comment;
-use App\Models\Notification;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {

@@ -13,10 +13,10 @@ class FacilityController extends Controller
         $facilities = Facility::orderBy('category')->orderBy('name')->paginate(10);
 
         $stats = [
-            'total'          => Facility::count(),
-            'lab'            => Facility::where('category', 'Lab')->count(),
-            'kelas'          => Facility::where('category', 'Kelas')->count(),
-            'perlu_perbaikan'=> Facility::where('status', 'perlu_perbaikan')->count(),
+            'total' => Facility::count(),
+            'lab' => Facility::where('category', 'Lab')->count(),
+            'kelas' => Facility::where('category', 'Kelas')->count(),
+            'perlu_perbaikan' => Facility::where('status', 'perlu_perbaikan')->count(),
         ];
 
         return view('admin.facilities.index', compact('facilities', 'stats'));
@@ -30,13 +30,13 @@ class FacilityController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'category'    => 'required|in:Lab,Kelas',
-            'location'    => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'category' => 'required|in:Lab,Kelas',
+            'location' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status'      => 'required|in:baik,perlu_perbaikan,rusak',
-            'sla_hours'   => 'required|integer|min:1|max:168',
-            'is_active'   => 'boolean',
+            'status' => 'required|in:baik,perlu_perbaikan,rusak',
+            'sla_hours' => 'required|integer|min:1|max:168',
+            'is_active' => 'boolean',
         ]);
 
         $data = $request->only([
@@ -61,13 +61,13 @@ class FacilityController extends Controller
     public function update(Request $request, Facility $facility)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'category'    => 'required|in:Lab,Kelas',
-            'location'    => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'category' => 'required|in:Lab,Kelas',
+            'location' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status'      => 'required|in:baik,perlu_perbaikan,rusak',
-            'sla_hours'   => 'required|integer|min:1|max:168',
-            'is_active'   => 'boolean',
+            'status' => 'required|in:baik,perlu_perbaikan,rusak',
+            'sla_hours' => 'required|integer|min:1|max:168',
+            'is_active' => 'boolean',
         ]);
 
         $data = $request->only([

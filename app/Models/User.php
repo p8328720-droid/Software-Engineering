@@ -11,8 +11,8 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'student_id', 'phone', 
-        'faculty', 'major', 'role'
+        'name', 'email', 'password', 'student_id', 'phone',
+        'faculty', 'major', 'role',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -56,6 +56,6 @@ class User extends Authenticatable
     // ========== HELPER METHODS ==========
     public function getAvatarUrlAttribute()
     {
-        return "https://ui-avatars.com/api/?background=FF6B35&color=fff&size=100&name=" . urlencode($this->name);
+        return 'https://ui-avatars.com/api/?background=FF6B35&color=fff&size=100&name='.urlencode($this->name);
     }
 }

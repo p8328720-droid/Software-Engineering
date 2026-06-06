@@ -11,28 +11,28 @@ class AuditController extends Controller
     public function index(Request $request)
     {
         $query = AuditLog::with('user');
-        
+
         if ($request->filled('action')) {
-            $query->where('action', 'like', '%' . $request->action . '%');
+            $query->where('action', 'like', '%'.$request->action.'%');
         }
-        
-       if ($request->filled('table') && $request->table != '') {
-    $query->where('auditable_type', 'like', '%' . $request->table . '%');
-}
-        
+
+        if ($request->filled('table') && $request->table != '') {
+            $query->where('auditable_type', 'like', '%'.$request->table.'%');
+        }
+
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
-        
+
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
-        
+
         $logs = $query->orderBy('created_at', 'desc')->paginate(20);
-        
+
         return view('admin.audit.index', compact('logs'));
     }
-    
+
     /**
      * Get detail of a specific audit log (AJAX)
      */
@@ -40,7 +40,7 @@ class AuditController extends Controller
     {
         try {
             $log = AuditLog::with('user')->findOrFail($id);
-            
+
             return response()->json([
                 'success' => true,
                 'log' => [
@@ -48,18 +48,18 @@ class AuditController extends Controller
                     'created_at' => $log->created_at->format('d/m/Y H:i:s'),
                     'user_name' => $log->user ? $log->user->name : 'System',
                     'user_role' => $log->user ? $log->user->role : null,
- 'action'         => $log->action,
-'auditable_type' => $log->auditable_type,
-'auditable_id'   => $log->auditable_id,
+                    'action' => $log->action,
+                    'auditable_type' => $log->auditable_type,
+                    'auditable_id' => $log->auditable_id,
                     'old_values' => $log->old_values,
                     'new_values' => $log->new_values,
                     'ip_address' => $log->ip_address,
-                ]
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

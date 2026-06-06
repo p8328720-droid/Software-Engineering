@@ -1,17 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AuditController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\FacilityController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StatusController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Teknisi\TaskController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\FacilityController;
-use App\Http\Controllers\Admin\AuditController;
-use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use Illuminate\Support\Facades\Route;
 
 // ========== LANDING PAGE ==========
 Route::get('/', function () {
@@ -29,11 +29,11 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     // Login
     Route::get('/login', [AuthController::class, 'showMahasiswaLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'mahasiswaLogin']);
-    
+
     // Register
     Route::get('/register', [AuthController::class, 'showMahasiswaRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'mahasiswaRegister']);
-    
+
     // Protected routes
     Route::middleware(['auth', 'role:mahasiswa'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'mahasiswaDashboard'])->name('dashboard');
@@ -48,17 +48,16 @@ Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     });
 });
 
-
 // ========== TEKNISI ==========
 Route::prefix('teknisi')->name('teknisi.')->group(function () {
     // Login
     Route::get('/login', [AuthController::class, 'showTeknisiLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'teknisiLogin']);
-    
+
     // Register
     Route::get('/register', [AuthController::class, 'showTeknisiRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'teknisiRegister']);
-    
+
     // Protected routes
     Route::middleware(['auth', 'role:teknisi'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'teknisiDashboard'])->name('dashboard');
@@ -69,22 +68,21 @@ Route::prefix('teknisi')->name('teknisi.')->group(function () {
     });
 });
 
-
 // ========== ADMIN ==========
 Route::prefix('admin')->name('admin.')->group(function () {
     // Login
     Route::get('/login', [AuthController::class, 'showAdminLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'adminLogin']);
-    
+
     // Register
     Route::get('/register', [AuthController::class, 'showAdminRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'adminRegister']);
-    
+
     // Protected routes
     Route::middleware(['auth', 'role:admin'])->group(function () {
         // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        
+
         // User Management
         Route::get('/users', [UserController::class, 'index'])->name('users');
         Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
@@ -92,7 +90,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-        
+
         // Facility Management
         Route::get('/facilities', [FacilityController::class, 'index'])->name('facilities');
         Route::get('/facilities/create', [FacilityController::class, 'create'])->name('facilities.create');
@@ -100,20 +98,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/facilities/{facility}/edit', [FacilityController::class, 'edit'])->name('facilities.edit');
         Route::put('/facilities/{facility}', [FacilityController::class, 'update'])->name('facilities.update');
         Route::delete('/facilities/{facility}', [FacilityController::class, 'destroy'])->name('facilities.destroy');
-        
+
         // Report Management
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/{id}/edit', [AdminReportController::class, 'edit'])->name('reports.edit');
         Route::put('/reports/{id}', [AdminReportController::class, 'update'])->name('reports.update');
         Route::delete('/reports/{id}', [AdminReportController::class, 'destroy'])->name('reports.destroy');
-Route::delete('/reports/{id}/rating', [AdminReportController::class, 'deleteRating'])->name('reports.delete-rating');
-Route::post('/reports/{report}/comment', [AdminReportController::class, 'addComment'])->name('reports.comment'); // ← TAMBAHKAN
+        Route::delete('/reports/{id}/rating', [AdminReportController::class, 'deleteRating'])->name('reports.delete-rating');
+        Route::post('/reports/{report}/comment', [AdminReportController::class, 'addComment'])->name('reports.comment'); // ← TAMBAHKAN
         // Audit Trail
-       Route::get('/audit', [AuditController::class, 'index'])->name('audit');
-    Route::get('/audit/{id}/detail', [AuditController::class, 'detail'])->name('audit.detail');
+        Route::get('/audit', [AuditController::class, 'index'])->name('audit');
+        Route::get('/audit/{id}/detail', [AuditController::class, 'detail'])->name('audit.detail');
     });
 });
-
 
 // ========== NOTIFICATIONS ==========
 Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->group(function () {
@@ -124,7 +121,6 @@ Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->gr
     Route::get('/latest', [NotificationController::class, 'getLatest'])->name('latest');
     Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
 });
-
 
 // ========== LOGOUT ==========
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

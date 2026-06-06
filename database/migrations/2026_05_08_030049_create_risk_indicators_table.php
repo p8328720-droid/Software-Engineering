@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('period_start');
             $table->date('period_end');
             $table->timestamps();
-            
+
             // Index untuk optimasi
             $table->index(['facility_id', 'risk_level']);
             $table->index('period_end');
