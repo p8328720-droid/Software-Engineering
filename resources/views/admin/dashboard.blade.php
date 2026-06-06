@@ -63,7 +63,7 @@
         <div class="card text-center border-0 shadow-sm h-100">
             <div class="card-body">
                 <h3 class="text-success mb-0">{{ number_format($stats['total_facilities'] ?? 0) }}</h3>
-                <small class="text-muted">Total Ruangan</small>
+                <small class="text-muted">Total Fasilitas</small>
             </div>
         </div>
     </div>
@@ -119,7 +119,7 @@
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white py-3">
-                <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-orange"></i>Top 5 Ruangan Bermasalah</h5>
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-orange"></i>Top 5 Fasilitas Bermasalah</h5>
             </div>
             <div class="card-body">
                 <canvas id="facilityChart" height="250"></canvas>
@@ -167,7 +167,7 @@
                             <tr class="table-light">
                                 <th>ID</th>
                                 <th>Pelapor</th>
-                                <th>Ruangan</th>
+                                <th>Fasilitas</th>
                                 <th>Judul</th>
                                 <th>Status</th>
                                 <th>Tanggal</th>
@@ -293,7 +293,7 @@ new Chart(statusCtx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom' } }
     }
 });
@@ -316,7 +316,7 @@ new Chart(urgencyCtx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom' } }
     }
 });
@@ -339,7 +339,7 @@ new Chart(facilityCtx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
             y: { beginAtZero: true, ticks: { stepSize: 1 } }
@@ -364,7 +364,7 @@ new Chart(ratingCtx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
             y: { beginAtZero: true, ticks: { stepSize: 1 } }
@@ -392,7 +392,7 @@ new Chart(trendCtx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { position: 'top' } },
         scales: {
             y: { beginAtZero: true, ticks: { stepSize: 1 } }
