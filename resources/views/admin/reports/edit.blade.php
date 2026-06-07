@@ -83,6 +83,7 @@
                         <label class="fw-bold">Ubah Status</label>
                         <select name="status" class="form-select">
                             <option value="verified" {{ $report->status == 'verified' ? 'selected' : '' }}>Diverifikasi</option>
+                            <option value="completed" {{ $report->status == 'completed' ? 'selected' : '' }}>Selesai</option>
                             <option value="rejected" {{ $report->status == 'rejected' ? 'selected' : '' }}>Ditolak</option>
                         </select>
                     </div>
