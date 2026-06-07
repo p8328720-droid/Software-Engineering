@@ -101,7 +101,9 @@ class AuthController extends Controller
 
     public function showTeknisiRegisterForm()
     {
-        return view('auth.teknisi.register');
+        return abort(403, 'Function was disabled.');
+
+        // return view('auth.teknisi.register');
     }
 
     public function teknisiRegister(Request $request)
@@ -161,7 +163,8 @@ class AuthController extends Controller
 
     public function showAdminRegisterForm()
     {
-        return view('auth.admin.register');
+        return abort(403, 'Function was disabled.');
+        // return view('auth.admin.register');
     }
 
     public function adminRegister(Request $request)
