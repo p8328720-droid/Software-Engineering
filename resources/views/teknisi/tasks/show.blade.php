@@ -85,11 +85,8 @@
                     <div class="mb-3">
                         <label class="fw-bold">Ubah Status</label>
                         <select name="status" class="form-select">
-                            <option value="pending" {{ $report->status=='pending' ? 'selected' : '' }}>Menunggu</option>
-                            <option value="verified" {{ $report->status=='verified' ? 'selected' : '' }}>Diverifikasi</option>
                             <option value="in_progress" {{ $report->status=='in_progress' ? 'selected' : '' }}>Diproses</option>
                             <option value="completed" {{ $report->status=='completed' ? 'selected' : '' }}>Selesai</option>
-                            <option value="rejected" {{ $report->status=='rejected' ? 'selected' : '' }}>Ditolak</option>
                         </select>
                     </div>
                     <input type="hidden" name="description" value="Status diperbarui oleh teknisi">

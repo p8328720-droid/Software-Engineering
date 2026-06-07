@@ -48,8 +48,7 @@ class ReportController extends Controller
         $report = Report::findOrFail($id);
 
         $request->validate([
-            // ✅ FIX: admin_note dihapus — kolom sudah tidak ada di DB (migration remove_admin_note)
-            'status' => 'required|in:pending,verified,in_progress,completed,rejected',
+            'status' => 'required|in:verified,in_progress,rejected',
         ]);
 
         $oldStatus = $report->status;
