@@ -50,7 +50,12 @@ MySQL untuk production, SQLite untuk development
 
 
 ## Cara Menjalankan
+### Prasyarat
+- PHP >=8.2
+- Composer
+- MySQL/MariaDB
 
+### Langkah
 1. Clone repository
    git clone <link-repository>
 
@@ -72,5 +77,22 @@ MySQL untuk production, SQLite untuk development
 7. Jalankan server
    php artisan serve
 
+## Menjalankan dengan Docker
+### Prasyarat
+- Docker
+- Docker Compose
+### Clone Repository
+- git clone <repository-url>
+- cd Software-Engineering
+### Jalankan Aplikasi
+Karena image aplikasi telah tersedia, cukup jalankan:
+- docker compose up -d
+### Akses Aplikasi
+Setelah seluruh container berjalan, aplikasi dapat diakses melalui:
+http://localhost:8000
+### Menghentikan Aplikasi
+- docker compose down
+### Melihat Log Container
+- docker compose logs -f
 
 Akses aplikasi di http://127.0.0.1:8000
