@@ -13,8 +13,7 @@ services:
   app:
     image: ghcr.io/p8328720-droid/software-engineering:latest
     environment:
-      - LOG_CHANNEL=stack
-      - LOG_LEVEL=debug
+      - APP_ENV=PRODUCTION
       - DB_CONNECTION=mariadb
       - DB_HOST=db
       - DB_DATABASE=laravel
