@@ -33,18 +33,19 @@ class DashboardController extends Controller
     {
         // Statistik
         $stats = [
-            'active_tasks' => Report::whereIn('status', ['pending', 'in_progress'])->count(),
-            'completed_tasks' => Report::where('status', 'completed')
-                ->whereDate('resolved_at', today())
-                ->count(),
-            'total_reports' => Report::count(),
-        ];
+        'active_tasks' => Report::whereIn('status', ['pending', 'verified', 'in_progress'])->count(), // ✅
+        'completed_tasks' => Report::where('status', 'completed')
+            ->whereDate('resolved_at', today())
+            ->count(),
+        'total_reports' => Report::count(),
+    ];
 
-        // Tugas aktif
-        $active_tasks = Report::with(['user', 'facility'])
-            ->whereIn('status', ['pending', 'in_progress'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+    
+    // Tugas aktif
+    $active_tasks = Report::with(['user', 'facility'])
+        ->whereIn('status', ['pending', 'verified', 'in_progress']) // ✅
+        ->orderBy('created_at', 'desc')
+        ->get();
 
         // Tugas selesai dengan rating (untuk rata-rata rating teknisi)
         $completedTasks = Report::with(['user', 'facility'])

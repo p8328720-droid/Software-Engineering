@@ -13,7 +13,7 @@ class TaskController extends Controller
     public function index()
     {
         $activeTasks = Report::with('facility')
-            ->whereIn('status', ['pending', 'in_progress'])
+            ->whereIn('status', ['pending', 'verified', 'in_progress']) // ✅ tambah 'verified'
             ->latest()
             ->get();
 
@@ -22,7 +22,9 @@ class TaskController extends Controller
 
     public function show(Report $report)
     {
-        if ($report->status == 'pending') {
+        if (in_array($report->status, ['pending', 'verified'])) { // ✅ ganti == 'pending'
+            $oldStatus = $report->status;
+
             $report->update(['status' => 'in_progress']);
 
             ReportStatus::create([
@@ -32,24 +34,21 @@ class TaskController extends Controller
                 'description' => 'Teknisi mulai memproses laporan',
             ]);
 
-            // ← TAMBAHKAN: catat di audit log
             AuditLog::create([
                 'user_id' => auth()->id(),
                 'action' => 'teknisi_open_task',
                 'auditable_type' => Report::class,
                 'auditable_id' => $report->id,
-                'old_values' => ['status' => 'pending'],
+                'old_values' => ['status' => $oldStatus], // ✅ pakai $oldStatus
                 'new_values' => ['status' => 'in_progress'],
                 'ip_address' => request()->ip(),
             ]);
 
-            // ← TAMBAHKAN: notifikasi ke mahasiswa
-            NotificationService::reportStatusUpdated($report, 'pending', 'in_progress');
+            NotificationService::reportStatusUpdated($report, $oldStatus, 'in_progress'); // ✅ pakai $oldStatus
         }
 
         $report->load('comments.user', 'statusHistory.user', 'facility', 'user');
 
         return view('teknisi.tasks.show', compact('report'));
-
     }
 }
