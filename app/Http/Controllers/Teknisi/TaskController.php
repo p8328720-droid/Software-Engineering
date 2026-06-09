@@ -22,7 +22,7 @@ class TaskController extends Controller
 
     public function show(Report $report)
     {
-        if (in_array($report->status, ['pending', 'verified'])) { // ✅ ganti == 'pending'
+        if (in_array($report->status, ['verified'])) { // ✅ ganti == 'pending'
             $oldStatus = $report->status;
 
             $report->update(['status' => 'in_progress']);
